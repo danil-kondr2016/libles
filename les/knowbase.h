@@ -24,6 +24,7 @@ typedef struct Conclusion Conclusion;
 
 struct KnowledgeBase
 {
+	char            *message;
 	char            *comment;
 
 	size_t          nHypotheses;
