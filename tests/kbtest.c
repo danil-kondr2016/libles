@@ -35,6 +35,14 @@ int main(int argc, char **argv)
 		printf("  Title: %s\n", kb.conclusions[i].str);
 		printf("  Apriori probability: %lf\n", kb.conclusions[i].probApriori);
 		printf("  Number of rules: %d\n", kb.conclusions[i].nAnswerProbs);
+		printf("  Rules:\n");
+		for (j = 0; j < kb.conclusions[i].nAnswerProbs; j++) {
+			printf("    Rule %d: i=%d, py=%lf, pn=%lf\n",
+					j, 
+					kb.conclusions[i].answerProbs[j].iHypothesis,
+					kb.conclusions[i].answerProbs[j].probYes,
+					kb.conclusions[i].answerProbs[j].probNo);
+		}
 	}
 
 	les_knowledge_base_destroy(&kb);
