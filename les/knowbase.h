@@ -27,8 +27,8 @@ struct KnowledgeBase
 	char            *message;
 	char            *comment;
 
-	size_t          nHypotheses;
-	char            **hypotheses;
+	size_t          nQuestions;
+	char            **questions;
 
 	size_t          nConclusions;
 	Conclusion      *conclusions;

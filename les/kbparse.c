@@ -6,6 +6,10 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <errno.h>
 
 enum kbparse_state
 {
@@ -68,13 +72,16 @@ int les_knowledge_base_parse_file(KnowledgeBase *pKB, const char *filename)
 
 	input = fopen(filename, "rt");
 	if (!input) {
-		perror(filename);
+		int _error = errno;
+		pKB->message = sdscatprintf(sdsempty(),
+				"System error: %s: %s",
+				filename, strerror(_error));
 		return -1;
 	}
 
-	ctx->input = input;
-	ctx->getc = fgetc;
-	ctx->kb = pKB;
+	ctx.input = input;
+	ctx.getc = fgetc;
+	ctx.kb = pKB;
 
 	return parse(&ctx);
 }
@@ -88,9 +95,9 @@ int les_knowledge_base_parse_data(KnowledgeBase *pKB, const char *data)
 	rbuf.len = strlen(data);
 	rbuf.pos = 0;
 
-	ctx->input = &rbuf;
-	ctx->getc = buf_getc;
-	ctx->kb = pKB;
+	ctx.input = &rbuf;
+	ctx.getc = buf_getc;
+	ctx.kb = pKB;
 
 	return parse(&ctx);
 }
@@ -159,7 +166,7 @@ static int parse(struct parse_context *ctx)
 					continue;
 				} 
 				else {
-					arrput(ctx->kb->hypotheses, ctx->tmpString);
+					arrput(ctx->kb->questions, ctx->tmpString);
 
 					ctx->lineLength = 0;
 					ctx->nQuestions++;
@@ -174,7 +181,7 @@ static int parse(struct parse_context *ctx)
 			break;
 		case CONCLUSION_TITLE:
 			if (inc == ',') {
-				ctx->conc->str = ctx->tmpString;
+				ctx->conc.str = ctx->tmpString;
 				ctx->fragmentSize = 0;
 				ctx->state++;
 				ctx->tmpString = sdsempty();
@@ -182,7 +189,7 @@ static int parse(struct parse_context *ctx)
 			}
 		       	else if (inc == '\n') {
 				if (ctx->lineLength > 0) {
-					ctx->kb->message = sdscatprintf(ctx->message,
+					ctx->kb->message = sdscatprintf(ctx->kb->message,
 							"Premature end of line at row %zu column %zu",
 							ctx->nLines + 1,
 							ctx->lineLength);
@@ -200,7 +207,7 @@ static int parse(struct parse_context *ctx)
 			break;
 		case CONCLUSION_P_APRIORI:
 			if (inc == ',') {
-				ctx->conc->probApriori = strtod(ctx->tmpString, NULL);
+				ctx->conc.probApriori = strtod(ctx->tmpString, NULL);
 				sdsfree(ctx->tmpString);
 				ctx->tmpString = sdsempty();
 
@@ -209,7 +216,7 @@ static int parse(struct parse_context *ctx)
 				continue;
 			}
 		       	else if (inc == '\n') {
-				ctx->kb->message = sdscatprintf(ctx->message,
+				ctx->kb->message = sdscatprintf(ctx->kb->message,
 						"Premature end of line at row %zu column %zu",
 						ctx->nLines + 1,
 						ctx->lineLength);
@@ -224,7 +231,7 @@ static int parse(struct parse_context *ctx)
 			break;
 		case CONCLUSION_INDEX:
 			if (inc == ',') {
-				ctx->ansp->iHypothesis = atoi(ctx->tmpString);
+				ctx->ansp.iHypothesis = atoi(ctx->tmpString);
 				sdsfree(ctx->tmpString);
 				ctx->tmpString = sdsempty();
 
@@ -233,7 +240,7 @@ static int parse(struct parse_context *ctx)
 				continue;
 			}
 		       	else if (inc == '\n') {
-				ctx->kb->message = sdscatprintf(ctx->message,
+				ctx->kb->message = sdscatprintf(ctx->kb->message,
 						"Premature end of line at row %zu column %zu",
 						ctx->nLines + 1,
 						ctx->lineLength);
@@ -248,7 +255,7 @@ static int parse(struct parse_context *ctx)
 			break;
 		case CONCLUSION_PY:
 			if (inc == ',') {
-				ctx->ansp->probYes = strtod(ctx->tmpString, NULL);
+				ctx->ansp.probYes = strtod(ctx->tmpString, NULL);
 				sdsfree(ctx->tmpString);
 				ctx->tmpString = sdsempty();
 
@@ -257,7 +264,7 @@ static int parse(struct parse_context *ctx)
 				continue;
 			}
 		       	else if (inc == '\n') {
-				ctx->kb->message = sdscatprintf(ctx->message,
+				ctx->kb->message = sdscatprintf(ctx->kb->message,
 						"Premature end of line at row %zu column %zu",
 						ctx->nLines + 1,
 						ctx->lineLength);
@@ -272,14 +279,14 @@ static int parse(struct parse_context *ctx)
 			break;
 		case CONCLUSION_PN:
 			if (inc == ',') {
-				ctx->ansp->probNo = strtod(ctx->tmpString, NULL);
+				ctx->ansp.probNo = strtod(ctx->tmpString, NULL);
 				sdsfree(ctx->tmpString);
 				ctx->tmpString = sdsempty();
 
-				arrput(ctx->conc->answerProbs, ctx->ansp);
-				ctx->ansp->iHypothesis = 0;
-				ctx->ansp->probYes = 0;
-				ctx->ansp->probNo = 0;
+				arrput(ctx->conc.answerProbs, ctx->ansp);
+				ctx->ansp.iHypothesis = 0;
+				ctx->ansp.probYes = 0;
+				ctx->ansp.probNo = 0;
 
 				ctx->fragmentSize = 0;
 				ctx->state = CONCLUSION_INDEX;
@@ -287,7 +294,7 @@ static int parse(struct parse_context *ctx)
 			}
 		       	else if (inc == '\n') {
 				if (ctx->fragmentSize == 0) {
-					ctx->kb->message = sdscatprintf(ctx->message,
+					ctx->kb->message = sdscatprintf(ctx->kb->message,
 							"Premature end of line at row %zu column %zu",
 							ctx->nLines + 1,
 							ctx->lineLength);
@@ -295,17 +302,22 @@ static int parse(struct parse_context *ctx)
 					break;
 				}
 				else {
-					ctx->ansp->probNo = strtod(ctx->tmpString, NULL);
+					ctx->ansp.probNo = strtod(ctx->tmpString, NULL);
 					sdsfree(ctx->tmpString);
 					ctx->tmpString = sdsempty();
 
-					arrput(ctx->conc->answerProbs, ctx->ansp);
-					ctx->ansp->iHypothesis = 0;
-					ctx->ansp->probYes = 0;
-					ctx->ansp->probNo = 0;
+					arrput(ctx->conc.answerProbs, ctx->ansp);
+					ctx->ansp.iHypothesis = 0;
+					ctx->ansp.probYes = 0;
+					ctx->ansp.probNo = 0;
 
-					ctx->conc->nAnswerProbs = arrlenu(ctx->conc->answerProbs);
+					ctx->conc.nAnswerProbs = arrlenu(ctx->conc.answerProbs);
 					arrput(ctx->kb->conclusions, ctx->conc);
+
+					ctx->conc.str = NULL;
+					ctx->conc.probApriori = 0;
+					ctx->conc.nAnswerProbs = 0;
+					ctx->conc.answerProbs = NULL;
 
 					ctx->fragmentSize = 0;
 					ctx->lineLength = 0;
@@ -322,6 +334,9 @@ static int parse(struct parse_context *ctx)
 			break;
 		}
 	} while (inc != EOF && !error);
+
+	ctx->kb->nQuestions = arrlenu(ctx->kb->questions);
+	ctx->kb->nConclusions = arrlenu(ctx->kb->conclusions);
 
 	return error;
 }

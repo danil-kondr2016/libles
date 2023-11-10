@@ -1,7 +1,7 @@
 #include <les/knowbase.h>
 
-#include <stb/stb_ds.h>
-#include <sds/sds.h>
+#include <lib/stb/stb_ds.h>
+#include <lib/sds/sds.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,14 +10,21 @@ void les_knowledge_base_destroy(KnowledgeBase *pKB)
 {
 	size_t i;
 
-	sdsfree(pKB->comment);
-	pKB->comment = NULL;
+	if (pKB->message) {
+		sdsfree(pKB->message);
+		pKB->message = NULL;
+	}
 
-	if (pKB->hypotheses) {
-		for (i = 0; i < arrlen(pKB->hypotheses); i++)
-			sdsfree(pKB->hypotheses[i]);
-		arrfree(pKB->hypotheses);
-		pKB->nHypotheses = 0;
+	if (pKB->comment) {
+		sdsfree(pKB->comment);
+		pKB->comment = NULL;
+	}
+
+	if (pKB->questions) {
+		for (i = 0; i < arrlen(pKB->questions); i++)
+			sdsfree(pKB->questions[i]);
+		arrfree(pKB->questions);
+		pKB->nQuestions = 0;
 	}
 
 	if (pKB->conclusions) {
@@ -28,8 +35,8 @@ void les_knowledge_base_destroy(KnowledgeBase *pKB)
 			pKB->conclusions[i].str = NULL;
 			pKB->conclusions[i].probApriori = 0;
 
-			pKB->conclusions[i].nAnswerProbs = 0;
 			arrfree(pKB->conclusions[i].answerProbs);
+			pKB->conclusions[i].nAnswerProbs = 0;
 		}
 		pKB->nConclusions = 0;
 	}
