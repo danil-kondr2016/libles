@@ -3,19 +3,20 @@
 
 CC = cc
 CFLAGS = -g -W -I.
-EXE = .exe
+x = .exe
+o = .o
 
-all: kbtest$(EXE)
+all: kbtest$x
 
-kbtest$(EXE): tests/kbtest.o les/knowbase.o
-	$(CC) $(CFLAGS) -o kbtest$(EXE) tests/kbtest.o \
-		les/knowbase.o
+kbtest$x: tests/kbtest$o les/knowbase$o
+	$(CC) $(CFLAGS) -o kbtest$x tests/kbtest$o \
+		les/knowbase$o
 
-.SUFFIXES: .c .o
+.SUFFIXES: .c $o
 
-.c.o:
+.c$o:
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 clean:
-	rm -f tests/*.o les/*.o ./kbtest$(EXE)
+	rm -f tests/*$o les/*$o ./kbtest$x
 	
