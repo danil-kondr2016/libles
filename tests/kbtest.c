@@ -17,9 +17,10 @@ int main(int argc, char **argv)
 
 	input_name = argv[1];
 	ret = les_knowledge_base_parse_file(&kb, input_name);
+	printf("Result %d: %s\n", ret, kb.message);
 	if (ret) {
-		printf("%s\n", kb.message);
 		les_knowledge_base_destroy(&kb);
+		return 1;
 	}
 
 	printf("Knowledge base comment:\nbegin\n%s\nend\n", kb.comment);

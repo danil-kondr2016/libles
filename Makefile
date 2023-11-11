@@ -7,11 +7,9 @@ EXE = .exe
 
 all: kbtest$(EXE)
 
-kbtest$(EXE): tests/kbtest.o les/kbparse.o les/kbdestroy.o \
-	lib/sds/sds.o lib/stb/stb_ds.o
+kbtest$(EXE): tests/kbtest.o les/knowbase.o
 	$(CC) $(CFLAGS) -o kbtest$(EXE) tests/kbtest.o \
-		les/kbparse.o les/kbdestroy.o \
-		lib/sds/sds.o lib/stb/stb_ds.o
+		les/knowbase.o
 
 .SUFFIXES: .c .o
 
@@ -19,5 +17,5 @@ kbtest$(EXE): tests/kbtest.o les/kbparse.o les/kbdestroy.o \
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 clean:
-	rm -f tests/*.o les/*.o lib/sds/*.o lib/stb/*.o
+	rm -f tests/*.o les/*.o ./kbtest$(EXE)
 	

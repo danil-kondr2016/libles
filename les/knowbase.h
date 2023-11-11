@@ -22,9 +22,11 @@ struct Conclusion
 };
 typedef struct Conclusion Conclusion;
 
+#define MAX_MESSAGE_LENGTH 127
+
 struct KnowledgeBase
 {
-	char            *message;
+	char            message[MAX_MESSAGE_LENGTH + 1];
 	char            *comment;
 
 	size_t          nQuestions;
