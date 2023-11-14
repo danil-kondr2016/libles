@@ -2,15 +2,15 @@
 .SUFFIXES:
 
 CC = cc
-CFLAGS = -g -W -I.
+CFLAGS = -g -W -I./include/
 x = .exe
 o = .o
 
 all: kbtest$x
 
-kbtest$x: tests/kbtest$o les/knowbase$o
+kbtest$x: tests/kbtest$o les/parsemkb$o les/kbclear$o
 	$(CC) $(CFLAGS) -o kbtest$x tests/kbtest$o \
-		les/knowbase$o
+		les/parsemkb$o les/kbclear$o
 
 .SUFFIXES: .c $o
 

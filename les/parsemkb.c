@@ -183,36 +183,6 @@ static int parse(struct parse_context *ctx)
 	return ctx->error;
 }
 
-void les_knowledge_base_destroy(KnowledgeBase *pKB)
-{
-	size_t i;
-
-	if (pKB->comment) {
-		free(pKB->comment);
-		pKB->comment = NULL;
-	}
-
-	if (pKB->questions) {
-		for (i = 0; i < pKB->nQuestions; i++)
-			free(pKB->questions[i]);
-		buf_free(pKB->questions);
-		pKB->nQuestions = 0;
-	}
-
-	if (pKB->conclusions) {
-		for (i = 0; i < pKB->nConclusions; i++) {
-			if (pKB->conclusions[i].str)
-				free(pKB->conclusions[i].str); 
-			pKB->conclusions[i].str = NULL;
-			pKB->conclusions[i].probApriori = 0;
-
-			buf_free(pKB->conclusions[i].answerProbs);
-			pKB->conclusions[i].nAnswerProbs = 0;
-		}
-		pKB->nConclusions = 0;
-	}
-}
-
 static int parse_comment(struct parse_context *ctx, int inc)
 {
 	char ch;
