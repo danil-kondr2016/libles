@@ -1,8 +1,13 @@
+# Linux output files
 *.o
 *.a
 *.so
+# Windows output files
 *.exe
 *.lib
 *.dll
 *.obj
+# a.out test file
 a.out
+# Vim swaps
+*.swp

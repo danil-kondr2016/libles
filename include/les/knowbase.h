@@ -7,7 +7,6 @@
 
 struct AnswerProbability
 {
-	int     iHypothesis;
 	double  probYes, probNo;
 };
 typedef struct AnswerProbability AnswerProbability;
@@ -17,8 +16,7 @@ struct Conclusion
 	char               *str;
 	double             probApriori;
 
-	size_t             nAnswerProbs;
-	AnswerProbability *answerProbs;
+	AnswerProbability  *answerProbs;
 };
 typedef struct Conclusion Conclusion;
 

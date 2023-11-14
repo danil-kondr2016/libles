@@ -25,8 +25,8 @@ int main(int argc, char **argv)
 
 	printf("Knowledge base comment:\nbegin\n%s\nend\n", kb.comment);
 
-	printf("Number of questions: %d\n", kb.nQuestions);
-	for (i = 0; i < kb.nQuestions; i++) {
+	printf("Number of questions: %d\n", kb.nQuestions - 1);
+	for (i = 1; i < kb.nQuestions; i++) {
 		printf("Question %d: %s\n", i, kb.questions[i]);
 	}
 
@@ -35,12 +35,10 @@ int main(int argc, char **argv)
 		printf("Conclusion: %d\n");
 		printf("  Title: %s\n", kb.conclusions[i].str);
 		printf("  Apriori probability: %lf\n", kb.conclusions[i].probApriori);
-		printf("  Number of rules: %d\n", kb.conclusions[i].nAnswerProbs);
 		printf("  Rules:\n");
-		for (j = 0; j < kb.conclusions[i].nAnswerProbs; j++) {
-			printf("    Rule %d: i=%d, py=%lf, pn=%lf\n",
+		for (j = 1; j <= kb.nQuestions; j++) {
+			printf("    Rule %d: py=%lf, pn=%lf\n",
 					j, 
-					kb.conclusions[i].answerProbs[j].iHypothesis,
 					kb.conclusions[i].answerProbs[j].probYes,
 					kb.conclusions[i].answerProbs[j].probNo);
 		}

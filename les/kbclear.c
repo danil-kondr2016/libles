@@ -33,7 +33,6 @@ void les_knowledge_base_destroy(KnowledgeBase *pKB)
 			pKB->conclusions[i].probApriori = 0;
 
 			buf_free(pKB->conclusions[i].answerProbs);
-			pKB->conclusions[i].nAnswerProbs = 0;
 		}
 		pKB->nConclusions = 0;
 	}

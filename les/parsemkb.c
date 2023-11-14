@@ -61,6 +61,8 @@ struct parse_context
 	int fragmentSize;
 	int error;
 
+	int iAnswerProbQuestion;
+
 	int (*getc)(void *x);
 };
 
@@ -116,6 +118,22 @@ static int parse_conc_p_apriori(struct parse_context *ctx, int inc);
 static int parse_conc_rule_index(struct parse_context *ctx, int inc);
 static int parse_conc_rule_py(struct parse_context *ctx, int inc);
 static int parse_conc_rule_pn(struct parse_context *ctx, int inc);
+
+static void init_conclusion(Conclusion *conc, 
+		int nQuestions)
+{
+	int i;
+	AnswerProbability apIndifferent = {0.5, 0.5};
+
+	assert(conc);
+
+	conc->str = NULL;
+	conc->probApriori = 0;
+	conc->answerProbs = NULL;
+
+	for (i = 0; i < nQuestions+1; i++)
+		buf_push(conc->answerProbs, apIndifferent);
+}
 
 static int parse(struct parse_context *ctx)
 {
@@ -222,13 +240,13 @@ static int parse_question(struct parse_context *ctx, int inc)
 	if (inc == '\n') {
 		if (ctx->lineLength == 0) {
 			ctx->state++;
+			init_conclusion(&ctx->conc, ctx->kb->nQuestions);
 			return CONTINUE;
 		} 
 		else {
 			ctx->kb->nQuestions++;
 			buf_push(ctx->tmpBuf, '\0');
-			buf_push(ctx->kb->questions, 
-					strdup(ctx->tmpBuf));
+			buf_push(ctx->kb->questions, strdup(ctx->tmpBuf));
 			buf_clear(ctx->tmpBuf);
 
 			ctx->lineLength = 0;
@@ -320,7 +338,7 @@ static int parse_conc_rule_index(struct parse_context *ctx, int inc)
 	ch = inc;
 	if (inc == ',') {
 		buf_push(ctx->tmpBuf, '\0');
-		ctx->ansp.iHypothesis = atoi(ctx->tmpBuf);
+		ctx->iAnswerProbQuestion = atoi(ctx->tmpBuf);
 		buf_clear(ctx->tmpBuf);
 
 		ctx->fragmentSize = 0;
@@ -390,11 +408,8 @@ static int parse_conc_rule_pn(struct parse_context *ctx, int inc)
 		ctx->ansp.probNo = strtod(ctx->tmpBuf, NULL);
 		buf_clear(ctx->tmpBuf);
 
-		ctx->conc.nAnswerProbs++;
-		buf_push(ctx->conc.answerProbs, ctx->ansp);
-		ctx->ansp.iHypothesis = 0;
-		ctx->ansp.probYes = 0;
-		ctx->ansp.probNo = 0;
+		ctx->conc.answerProbs[ctx->iAnswerProbQuestion] = ctx->ansp;
+		ctx->iAnswerProbQuestion = 0;
 
 		ctx->fragmentSize = 0;
 		ctx->state = CONCLUSION_INDEX;
@@ -413,19 +428,12 @@ static int parse_conc_rule_pn(struct parse_context *ctx, int inc)
 			ctx->ansp.probNo = strtod(ctx->tmpBuf, NULL);
 			buf_clear(ctx->tmpBuf);
 
-			ctx->conc.nAnswerProbs++;
-			buf_push(ctx->conc.answerProbs, ctx->ansp);
-			ctx->ansp.iHypothesis = 0;
-			ctx->ansp.probYes = 0;
-			ctx->ansp.probNo = 0;
+			ctx->conc.answerProbs[ctx->iAnswerProbQuestion] = ctx->ansp;
+			ctx->iAnswerProbQuestion = 0;
 
 			ctx->kb->nConclusions++;
 			buf_push(ctx->kb->conclusions, ctx->conc);
-
-			ctx->conc.str = NULL;
-			ctx->conc.probApriori = 0;
-			ctx->conc.nAnswerProbs = 0;
-			ctx->conc.answerProbs = NULL;
+			init_conclusion(&ctx->conc, ctx->kb->nQuestions);
 
 			ctx->fragmentSize = 0;
 			ctx->lineLength = 0;
