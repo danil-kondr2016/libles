@@ -1,5 +1,9 @@
 #include <les/knowbase.h>
 
+#include <ffsys/globals.h>
+#include <ffsys/error.h>
+#include <ffsys/file.h>
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -33,19 +37,35 @@ enum kbparse_error
 struct read_buffer
 {
 	uint8_t   *buf;
-	size_t    len;
+	ptrdiff_t len;
 	ptrdiff_t pos;
 };
 
-static int buf_getc(struct read_buffer *pBuf)
+static ptrdiff_t _buf_read(void *from, void *to, size_t size)
 {
-	if (!pBuf)
-		return EOF;
+	struct read_buffer *rb;
+	size_t i;
+	ptrdiff_t ret;
+	uint8_t *p;
 
-	if (pBuf->pos >= pBuf->len)
-		return EOF;
+	if (!from)
+		return -1;
 
-	return pBuf->buf[pBuf->pos++];
+	rb = (struct read_buffer *)from;
+	p = (uint8_t *)to;
+
+	if (rb->pos >= rb->len)
+		return 0;
+
+	ret = rb->pos;
+	for (i = 0; i < size; i++) {
+		p[i] = rb->buf[rb->pos++];
+		if (rb->pos >= rb->len)
+			break;
+	}
+	ret = ret - rb->pos;
+
+	return ret;
 }
 
 struct parse_context
@@ -63,27 +83,32 @@ struct parse_context
 
 	int iAnswerProbQuestion;
 
-	int (*getc)(void *x);
+	ptrdiff_t (*read)(void *from, void *to, size_t size);
 };
+
+static ptrdiff_t _file_read(void *from, void *to, size_t size)
+{
+	return fffile_read((fffd)from, to, size);
+}
 
 static int parse(struct parse_context *ctx);
 
 int les_knowledge_base_parse_file(KnowledgeBase *pKB, const char *filename)
 {
 	struct parse_context ctx = {0};
-	FILE *input;
+	fffd hInput;
 
-	input = fopen(filename, "rt");
-	if (!input) {
-		int _error = errno;
+	hInput = fffile_open(filename, FFFILE_READONLY);
+	if (hInput == FFFILE_NULL) {
+		int _error = fferr_last();
 		snprintf(pKB->message, MAX_MESSAGE_LENGTH,
 				"System error: %s: %s",
-				filename, strerror(_error));
+				filename, fferr_strptr(_error));
 		return -1;
 	}
 
-	ctx.input = input;
-	ctx.getc = fgetc;
+	ctx.input = hInput;
+	ctx.read = _file_read;
 	ctx.kb = pKB;
 
 	return parse(&ctx);
@@ -99,7 +124,7 @@ int les_knowledge_base_parse_data(KnowledgeBase *pKB, const char *data)
 	rbuf.pos = 0;
 
 	ctx.input = &rbuf;
-	ctx.getc = buf_getc;
+	ctx.read = _buf_read;
 	ctx.kb = pKB;
 
 	return parse(&ctx);
@@ -111,13 +136,13 @@ enum
 	STOP,
 };
 
-static int parse_comment(struct parse_context *ctx, int inc);
-static int parse_question(struct parse_context *ctx, int inc);
-static int parse_conc_title(struct parse_context *ctx, int inc);
-static int parse_conc_p_apriori(struct parse_context *ctx, int inc);
-static int parse_conc_rule_index(struct parse_context *ctx, int inc);
-static int parse_conc_rule_py(struct parse_context *ctx, int inc);
-static int parse_conc_rule_pn(struct parse_context *ctx, int inc);
+static int parse_comment(struct parse_context *ctx, uint8_t inc);
+static int parse_question(struct parse_context *ctx, uint8_t inc);
+static int parse_conc_title(struct parse_context *ctx, uint8_t inc);
+static int parse_conc_p_apriori(struct parse_context *ctx, uint8_t inc);
+static int parse_conc_rule_index(struct parse_context *ctx, uint8_t inc);
+static int parse_conc_rule_py(struct parse_context *ctx, uint8_t inc);
+static int parse_conc_rule_pn(struct parse_context *ctx, uint8_t inc);
 
 static void init_conclusion(Conclusion *conc, 
 		int nQuestions)
@@ -135,11 +160,14 @@ static void init_conclusion(Conclusion *conc,
 		buf_push(conc->answerProbs, apIndifferent);
 }
 
+#define BUF_SIZE 4096
 static int parse(struct parse_context *ctx)
 {
-	int inc;
-	int ret;
-	char ch;
+	uint8_t buf[BUF_SIZE];
+	ptrdiff_t n_read = 0, pos = 0;
+	int eof = 0;
+	uint8_t inc, postcr;
+	int ret, cr = 0;
 
 	ctx->nLines = 0;
 	ctx->lineLength = 0;
@@ -148,8 +176,13 @@ static int parse(struct parse_context *ctx)
 	ctx->fragmentSize = 0;
 
 	do {
-		inc = ctx->getc(ctx->input);
-		if (inc == EOF) {
+		if (pos >= n_read) {
+			pos = 0;
+			n_read = ctx->read(ctx->input, buf, BUF_SIZE);
+		}
+		
+		/*
+		if (n_read == 0) {
 			if (ctx->state != CONCLUSION_PN 
 					&& (ctx->state != CONCLUSION_TITLE 
 						|| ctx->lineLength > 0)) 
@@ -162,11 +195,33 @@ static int parse(struct parse_context *ctx)
 				break;
 			}
 		}
+		 */
 
-		if (inc != EOF)
-			ch = inc;
-		else
-			ch = '\0';
+		if (cr == 1) {
+			inc = '\r';
+			cr = 2;
+		} else if (cr == 2) {
+			inc = postcr;
+			cr = 0;
+		} else {
+			inc = buf[pos];
+			if (inc == '\r') {
+				cr = 1;
+				pos++;
+				if (pos >= n_read) {
+					pos = 0;
+					n_read = ctx->read(ctx->input, buf, BUF_SIZE);
+				}
+				inc = buf[pos];
+				pos++;
+				if (inc == '\n')
+					cr = 0;
+				else 
+					postcr = inc;
+			} else {
+				pos++;
+			}
+		}
 
 		switch (ctx->state) {
 		case COMMENT:
@@ -194,14 +249,14 @@ static int parse(struct parse_context *ctx)
 
 		if (ret == STOP)
 			break;
-	} while (inc != EOF && !ctx->error);
+	} while (n_read > 0);
 
 	buf_free(ctx->tmpBuf);
 
 	return ctx->error;
 }
 
-static int parse_comment(struct parse_context *ctx, int inc)
+static int parse_comment(struct parse_context *ctx, uint8_t inc)
 {
 	char ch;
 
@@ -230,7 +285,7 @@ static int parse_comment(struct parse_context *ctx, int inc)
 	return CONTINUE;
 }
 
-static int parse_question(struct parse_context *ctx, int inc)
+static int parse_question(struct parse_context *ctx, uint8_t inc)
 {
 	char ch;
 
@@ -261,7 +316,7 @@ static int parse_question(struct parse_context *ctx, int inc)
 	return CONTINUE;
 }
 
-static int parse_conc_title(struct parse_context *ctx, int inc)
+static int parse_conc_title(struct parse_context *ctx, uint8_t inc)
 {
 	char ch;
 
@@ -296,7 +351,7 @@ static int parse_conc_title(struct parse_context *ctx, int inc)
 
 }
 
-static int parse_conc_p_apriori(struct parse_context *ctx, int inc)
+static int parse_conc_p_apriori(struct parse_context *ctx, uint8_t inc)
 {
 	char ch;
 
@@ -329,7 +384,7 @@ static int parse_conc_p_apriori(struct parse_context *ctx, int inc)
 	return CONTINUE;
 }
 
-static int parse_conc_rule_index(struct parse_context *ctx, int inc)
+static int parse_conc_rule_index(struct parse_context *ctx, uint8_t inc)
 {
 	char ch;
 
@@ -363,7 +418,7 @@ static int parse_conc_rule_index(struct parse_context *ctx, int inc)
 }
 
 
-static int parse_conc_rule_py(struct parse_context *ctx, int inc)
+static int parse_conc_rule_py(struct parse_context *ctx, uint8_t inc)
 {
 	char ch;
 
@@ -396,7 +451,7 @@ static int parse_conc_rule_py(struct parse_context *ctx, int inc)
 }
 
 
-static int parse_conc_rule_pn(struct parse_context *ctx, int inc)
+static int parse_conc_rule_pn(struct parse_context *ctx, uint8_t inc)
 {
 	char ch;
 
