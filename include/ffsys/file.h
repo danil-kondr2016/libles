@@ -33,7 +33,6 @@ I/O:
 #define _FFSYS_FILE_H
 
 #include <ffsys/time.h>
-#include <ffbase/vector.h> // optional
 
 // TTTT SSS RWXRWXRWX
 enum FFFILE_UNIX_FILEATTR {
