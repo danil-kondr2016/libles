@@ -10,7 +10,7 @@ all: kbtest$x
 
 kbtest$x: tests/kbtest$o les/parsemkb$o les/kbclear$o
 	$(CC) $(CFLAGS) -o kbtest$x tests/kbtest$o \
-		les/parsemkb$o les/kbclear$o
+		les/parsemkb$o les/kbclear$o les/kbcopy$o
 
 .SUFFIXES: .c $o
 

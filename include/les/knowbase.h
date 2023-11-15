@@ -39,4 +39,6 @@ int les_knowledge_base_parse_file(KnowledgeBase *pKB, const char *filename);
 int les_knowledge_base_parse_data(KnowledgeBase *pKB, const char *data);
 void les_knowledge_base_destroy(KnowledgeBase *pKB);
 
+void les_knowledge_base_copy(KnowledgeBase *pDest, KnowledgeBase *pSrc);
+
 #endif
