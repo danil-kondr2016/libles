@@ -136,13 +136,13 @@ enum
 	STOP,
 };
 
-static int parse_comment(struct parse_context *ctx, uint8_t inc);
-static int parse_question(struct parse_context *ctx, uint8_t inc);
-static int parse_conc_title(struct parse_context *ctx, uint8_t inc);
-static int parse_conc_p_apriori(struct parse_context *ctx, uint8_t inc);
-static int parse_conc_rule_index(struct parse_context *ctx, uint8_t inc);
-static int parse_conc_rule_py(struct parse_context *ctx, uint8_t inc);
-static int parse_conc_rule_pn(struct parse_context *ctx, uint8_t inc);
+static int parse_comment(struct parse_context *ctx, int inc);
+static int parse_question(struct parse_context *ctx, int inc);
+static int parse_conc_title(struct parse_context *ctx, int inc);
+static int parse_conc_p_apriori(struct parse_context *ctx, int inc);
+static int parse_conc_rule_index(struct parse_context *ctx, int inc);
+static int parse_conc_rule_py(struct parse_context *ctx, int inc);
+static int parse_conc_rule_pn(struct parse_context *ctx, int inc);
 
 static void init_conclusion(Conclusion *conc, 
 		int nQuestions)
@@ -166,7 +166,7 @@ static int parse(struct parse_context *ctx)
 	uint8_t buf[BUF_SIZE];
 	ptrdiff_t n_read = 0, pos = 0;
 	int eof = 0;
-	uint8_t inc, postcr;
+	int inc, postcr;
 	int ret, cr = 0;
 
 	ctx->nLines = 0;
@@ -181,7 +181,6 @@ static int parse(struct parse_context *ctx)
 			n_read = ctx->read(ctx->input, buf, BUF_SIZE);
 		}
 		
-		/*
 		if (n_read == 0) {
 			if (ctx->state != CONCLUSION_PN 
 					&& (ctx->state != CONCLUSION_TITLE 
@@ -195,15 +194,20 @@ static int parse(struct parse_context *ctx)
 				break;
 			}
 		}
-		 */
 
-		if (cr == 1) {
+		
+		if (n_read == 0) {
+			inc = -1;
+		}
+		else if (cr == 1) {
 			inc = '\r';
 			cr = 2;
-		} else if (cr == 2) {
+		} 
+		else if (cr == 2) {
 			inc = postcr;
 			cr = 0;
-		} else {
+		} 
+		else {
 			inc = buf[pos];
 			if (inc == '\r') {
 				cr = 1;
@@ -256,14 +260,14 @@ static int parse(struct parse_context *ctx)
 	return ctx->error;
 }
 
-static int parse_comment(struct parse_context *ctx, uint8_t inc)
+static int parse_comment(struct parse_context *ctx, int inc)
 {
 	char ch;
 
 	assert(ctx->state == COMMENT);
 
 	ch = inc;
-	if (inc == '\n') {
+	if (inc == '\n' || inc == -1) {
 		if (ctx->lineLength == 0) {
 			buf_push(ctx->tmpBuf, '\0');
 			ctx->kb->comment = strdup(ctx->tmpBuf);
@@ -285,14 +289,14 @@ static int parse_comment(struct parse_context *ctx, uint8_t inc)
 	return CONTINUE;
 }
 
-static int parse_question(struct parse_context *ctx, uint8_t inc)
+static int parse_question(struct parse_context *ctx, int inc)
 {
 	char ch;
 
 	assert(ctx->state == QUESTION);
 
 	ch = inc;
-	if (inc == '\n') {
+	if (inc == '\n' || inc == -1) {
 		if (ctx->lineLength == 0) {
 			ctx->state++;
 			init_conclusion(&ctx->conc, ctx->kb->nQuestions);
@@ -316,7 +320,7 @@ static int parse_question(struct parse_context *ctx, uint8_t inc)
 	return CONTINUE;
 }
 
-static int parse_conc_title(struct parse_context *ctx, uint8_t inc)
+static int parse_conc_title(struct parse_context *ctx, int inc)
 {
 	char ch;
 
@@ -331,7 +335,7 @@ static int parse_conc_title(struct parse_context *ctx, uint8_t inc)
 		buf_clear(ctx->tmpBuf);
 		return CONTINUE;
 	}
-	else if (inc == '\n') {
+	else if (inc == '\n' || inc == -1) {
 		if (ctx->lineLength > 0) {
 			snprintf(ctx->kb->message, MAX_MESSAGE_LENGTH,
 				"Premature end of line at row %zu column %zu",
@@ -351,7 +355,7 @@ static int parse_conc_title(struct parse_context *ctx, uint8_t inc)
 
 }
 
-static int parse_conc_p_apriori(struct parse_context *ctx, uint8_t inc)
+static int parse_conc_p_apriori(struct parse_context *ctx, int inc)
 {
 	char ch;
 
@@ -367,7 +371,7 @@ static int parse_conc_p_apriori(struct parse_context *ctx, uint8_t inc)
 		ctx->state++;
 		return CONTINUE;
 	}
-	else if (inc == '\n') {
+	else if (inc == '\n' || inc == -1) {
 		snprintf(ctx->kb->message, MAX_MESSAGE_LENGTH,
 			"Premature end of line at row %zu column %zu",
 			ctx->nLines + 1,
@@ -384,7 +388,7 @@ static int parse_conc_p_apriori(struct parse_context *ctx, uint8_t inc)
 	return CONTINUE;
 }
 
-static int parse_conc_rule_index(struct parse_context *ctx, uint8_t inc)
+static int parse_conc_rule_index(struct parse_context *ctx, int inc)
 {
 	char ch;
 
@@ -400,7 +404,7 @@ static int parse_conc_rule_index(struct parse_context *ctx, uint8_t inc)
 		ctx->state++;
 		return CONTINUE;
 	}
-	else if (inc == '\n') {
+	else if (inc == '\n' || inc == -1) {
 		snprintf(ctx->kb->message, MAX_MESSAGE_LENGTH,
 			"Premature end of line at row %zu column %zu",
 			ctx->nLines + 1,
@@ -418,7 +422,7 @@ static int parse_conc_rule_index(struct parse_context *ctx, uint8_t inc)
 }
 
 
-static int parse_conc_rule_py(struct parse_context *ctx, uint8_t inc)
+static int parse_conc_rule_py(struct parse_context *ctx, int inc)
 {
 	char ch;
 
@@ -433,7 +437,7 @@ static int parse_conc_rule_py(struct parse_context *ctx, uint8_t inc)
 		ctx->fragmentSize = 0;
 		ctx->state++;
 	}
-	else if (inc == '\n') {
+	else if (inc == '\n' || inc == -1) {
 		snprintf(ctx->kb->message, MAX_MESSAGE_LENGTH,
 			"Premature end of line at row %zu column %zu",
 			ctx->nLines + 1,
@@ -451,7 +455,7 @@ static int parse_conc_rule_py(struct parse_context *ctx, uint8_t inc)
 }
 
 
-static int parse_conc_rule_pn(struct parse_context *ctx, uint8_t inc)
+static int parse_conc_rule_pn(struct parse_context *ctx, int inc)
 {
 	char ch;
 
@@ -469,7 +473,7 @@ static int parse_conc_rule_pn(struct parse_context *ctx, uint8_t inc)
 		ctx->fragmentSize = 0;
 		ctx->state = CONCLUSION_INDEX;
 	}
-	else if (inc == '\n') {
+	else if (inc == '\n' || inc == -1) {
 		if (ctx->fragmentSize == 0) {
 			snprintf(ctx->kb->message, MAX_MESSAGE_LENGTH,
 					"Premature end of line at row %zu column %zu",
