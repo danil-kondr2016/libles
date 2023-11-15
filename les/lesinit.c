@@ -9,20 +9,30 @@
 static void set_rulevalue_questions(LittleExpertSystem *pSys, size_t i);
 static void les_init_fields(LittleExpertSystem *pSys);
 
-void les_init_file(LittleExpertSystem *pSys, const char *filename)
+int les_init_file(LittleExpertSystem *pSys, const char *filename)
 {
+	int ret;
 	assert(pSys);
 
-	les_knowledge_base_parse_file(&pSys->kb, filename);
+	ret = les_knowledge_base_parse_file(&pSys->kb, filename);
+	if (ret)
+		return ret;
+
 	les_init_fields(pSys);
+	return ret;
 }
 
-void les_init_data(LittleExpertSystem *pSys, const char *data)
+int les_init_data(LittleExpertSystem *pSys, const char *data)
 {
+	int ret;
 	assert(pSys);
 
-	les_knowledge_base_parse_data(&pSys->kb, data);
+	ret = les_knowledge_base_parse_data(&pSys->kb, data);
+	if (ret)
+		return ret;
+
 	les_init_fields(pSys);
+	return ret;
 }
 
 void les_close(LittleExpertSystem *pSys)

@@ -5,8 +5,6 @@
 #include <string.h>
 #include <assert.h>
 
-#include <math.h>
-
 #include "buf.h"
 
 static void select_question(LittleExpertSystem *pSys);
@@ -59,15 +57,22 @@ void les_stop(LittleExpertSystem *pSys)
 	pSys->iCurrentQuestion = 0;
 }
 
+char *les_get_question(LittleExpertSystem *pSys)
+{
+	return strdup(pSys->kb.questions[pSys->iCurrentQuestion]);
+}
+
 static void select_question(LittleExpertSystem *pSys)
 {
 	double m = 0;
 	size_t i, best_i;
 
 	for (i = 1; i < pSys->kb.nQuestions; i++) {
+		if (pSys->flags[i])
+			continue;
+
 		if (m < pSys->rulevalue[i]) {
 			m = pSys->rulevalue[i];
-			pSys->rulevalue[i] = 0;
 			best_i = i;
 		}
 	}
@@ -105,6 +110,9 @@ static void recalc_p_apriori(LittleExpertSystem *pSys, double answer)
 		else {
 			p = p * (1 + (py-(1-py)*pe/(1-pe)) * answer);
 		}
+
+		if (p < pSys->prob0 || p > pSys->prob1)
+			pSys->questions[i] = 0;
 
 		pSys->probs[i] = p;
 	}

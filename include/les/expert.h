@@ -20,13 +20,15 @@ typedef struct LittleExpertSystem
 	int           running;
 } LittleExpertSystem;
 
-void les_init_file(LittleExpertSystem *pSys, const char *filename);
-void les_init_data(LittleExpertSystem *pSys, const char *data);
+int  les_init_file(LittleExpertSystem *pSys, const char *filename);
+int  les_init_data(LittleExpertSystem *pSys, const char *data);
 void les_close(LittleExpertSystem *pSys);
 
 void les_start(LittleExpertSystem *pSys);
 int  les_is_running(LittleExpertSystem *pSys);
 int  les_answer(LittleExpertSystem *pSys, double answer);
 void les_stop(LittleExpertSystem *pSys);
+
+char *les_get_question(LittleExpertSystem *pSys);
 
 #endif
