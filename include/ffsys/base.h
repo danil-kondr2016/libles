@@ -4,7 +4,7 @@
 #ifndef _FFSYS_BASE_H
 #define _FFSYS_BASE_H
 
-#include <ffsys/detect-os.h>
+#include <ffsys/detectos.h>
 
 #if defined FF_LINUX
 	#ifndef _GNU_SOURCE
@@ -42,8 +42,7 @@
 
 #include <ffbase/base.h>
 
-#include <ffsys/detect-compiler.h>
-#include <ffsys/compiler-gcc.h>
+#include <ffsys/detectcc.h>
 
 typedef signed char ffint8;
 typedef int ffbool;

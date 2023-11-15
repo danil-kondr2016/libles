@@ -10,12 +10,15 @@ Compiler types:
 
 #if defined __clang__
 	#define FF_CLANG
+	#include <ffsys/bits/gcc.h>
 
 #elif defined __MINGW32__ || defined __MINGW64__
 	#define FF_MINGW
+	#include <ffsys/bits/gcc.h>
 
 #elif defined __GNUC__
 	#define FF_GCC
+	#include <ffsys/bits/gcc.h>
 
 // #elif defined _MSC_VER
 // 	#define FF_MSVC
