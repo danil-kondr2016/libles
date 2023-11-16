@@ -27,10 +27,6 @@ libles - библиотека для работы с базами знаний �
 
 1. buf.h (<https://github.com/skeeto/growable-buf>) - общественное достояние;
 
-2. ffbase (<https://github.com/stsaz/ffbase>) - UNLICENSE;
-
-3. ffsys (<https://github.com/stsaz/ffsys>) - UNLICENSE;
-
 Формат файла базы знаний
 ------------------------
 
