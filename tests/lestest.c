@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 	for (i = 0; i < les.kb.nConclusions; i++) {
 		printf("  (%.5f) %s\n", 
 				les.probs[i],
-				les.kb.conclusions[i]);
+				les.kb.conclusions[i].str);
 	}
 
 
