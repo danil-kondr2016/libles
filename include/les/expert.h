@@ -11,12 +11,17 @@ typedef struct LittleExpertSystem
 	KnowledgeBase kb;
 
 	double       *probs;
+	double       *min;
+	double       *max;
 	double       *rulevalue;
 	int          *questions;
 	uint8_t      *flags;
+
 	double        yesVal, noVal;
 	double        prob0, prob1;
-	int           iCurrentQuestion;
+	size_t        iCurrentQuestion;
+	size_t        iBest;
+
 	int           running;
 } LittleExpertSystem;
 
