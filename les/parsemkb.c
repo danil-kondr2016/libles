@@ -1,9 +1,5 @@
 #include <les/knowbase.h>
 
-#include <ffsys/globals.h>
-#include <ffsys/error.h>
-#include <ffsys/file.h>
-
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -34,100 +30,35 @@ enum kbparse_error
 	KBPARSE_ERROR_PREMATURE_END_OF_LINE,
 };
 
-struct read_buffer
+static int parse(KnowledgeBaseParser *ctx);
+
+void les_knowledge_base_init_parser(KnowledgeBaseParser *pParser)
 {
-	uint8_t   *buf;
-	ptrdiff_t len;
-	ptrdiff_t pos;
-};
+	assert(pParser);
 
-static ptrdiff_t _buf_read(void *from, void *to, size_t size)
-{
-	struct read_buffer *rb;
-	size_t i;
-	ptrdiff_t ret;
-	uint8_t *p;
-
-	if (!from)
-		return -1;
-
-	rb = (struct read_buffer *)from;
-	p = (uint8_t *)to;
-
-	if (rb->pos >= rb->len)
-		return 0;
-
-	ret = rb->pos;
-	for (i = 0; i < size; i++) {
-		p[i] = rb->buf[rb->pos++];
-		if (rb->pos >= rb->len)
-			break;
-	}
-	ret = ret - rb->pos;
-
-	return ret;
+	pParser->tmpBuf = NULL;
+	pParser->kb = NULL;
+	pParser->conc.str = NULL;
+	pParser->conc.probApriori = 0;
+	pParser->conc.answerProbs = NULL;
+	pParser->ansp.probYes = 0;
+	pParser->ansp.probNo = 0;
+	pParser->nLines = 0;
+	pParser->lineLength = 0;
+	pParser->state = 0;
+	pParser->nQuestions = 0;
+	pParser->fragmentSize = 0;
+	pParser->error = 0;
+	pParser->iAnswerProbQuestion = 0;
 }
 
-struct parse_context
+int les_knowledge_base_parse(KnowledgeBaseParser *pParser, KnowledgeBase *pKB)
 {
-	char *tmpBuf;
-	void *input;
-	KnowledgeBase *kb;
-	Conclusion conc;
-	AnswerProbability ansp;
+	assert(pParser);
+	assert(pKB);
 
-	int nLines, lineLength, state;
-	int nQuestions;
-	int fragmentSize;
-	int error;
-
-	int iAnswerProbQuestion;
-
-	ptrdiff_t (*read)(void *from, void *to, size_t size);
-};
-
-static ptrdiff_t _file_read(void *from, void *to, size_t size)
-{
-	return fffile_read((fffd)from, to, size);
-}
-
-static int parse(struct parse_context *ctx);
-
-int les_knowledge_base_parse_file(KnowledgeBase *pKB, const char *filename)
-{
-	struct parse_context ctx = {0};
-	fffd hInput;
-
-	hInput = fffile_open(filename, FFFILE_READONLY);
-	if (hInput == FFFILE_NULL) {
-		int _error = fferr_last();
-		snprintf(pKB->message, MAX_MESSAGE_LENGTH,
-				"System error: %s: %s",
-				filename, fferr_strptr(_error));
-		return -1;
-	}
-
-	ctx.input = hInput;
-	ctx.read = _file_read;
-	ctx.kb = pKB;
-
-	return parse(&ctx);
-}
-
-int les_knowledge_base_parse_data(KnowledgeBase *pKB, const char *data)
-{
-	struct parse_context ctx = {0};
-	struct read_buffer rbuf = {0};
-
-	rbuf.buf = data;
-	rbuf.len = strlen(data);
-	rbuf.pos = 0;
-
-	ctx.input = &rbuf;
-	ctx.read = _buf_read;
-	ctx.kb = pKB;
-
-	return parse(&ctx);
+	pParser->kb = pKB;
+	return parse(pParser);
 }
 
 enum
@@ -136,13 +67,13 @@ enum
 	STOP,
 };
 
-static int parse_comment(struct parse_context *ctx, int inc);
-static int parse_question(struct parse_context *ctx, int inc);
-static int parse_conc_title(struct parse_context *ctx, int inc);
-static int parse_conc_p_apriori(struct parse_context *ctx, int inc);
-static int parse_conc_rule_index(struct parse_context *ctx, int inc);
-static int parse_conc_rule_py(struct parse_context *ctx, int inc);
-static int parse_conc_rule_pn(struct parse_context *ctx, int inc);
+static int parse_comment(KnowledgeBaseParser *ctx, int inc);
+static int parse_question(KnowledgeBaseParser *ctx, int inc);
+static int parse_conc_title(KnowledgeBaseParser *ctx, int inc);
+static int parse_conc_p_apriori(KnowledgeBaseParser *ctx, int inc);
+static int parse_conc_rule_index(KnowledgeBaseParser *ctx, int inc);
+static int parse_conc_rule_py(KnowledgeBaseParser *ctx, int inc);
+static int parse_conc_rule_pn(KnowledgeBaseParser *ctx, int inc);
 
 static void init_conclusion(Conclusion *conc, 
 		int nQuestions)
@@ -161,7 +92,7 @@ static void init_conclusion(Conclusion *conc,
 }
 
 #define BUF_SIZE 4096
-static int parse(struct parse_context *ctx)
+static int parse(KnowledgeBaseParser *ctx)
 {
 	uint8_t buf[BUF_SIZE];
 	ptrdiff_t n_read = 0, pos = 0;
@@ -260,7 +191,7 @@ static int parse(struct parse_context *ctx)
 	return ctx->error;
 }
 
-static int parse_comment(struct parse_context *ctx, int inc)
+static int parse_comment(KnowledgeBaseParser *ctx, int inc)
 {
 	char ch;
 
@@ -289,7 +220,7 @@ static int parse_comment(struct parse_context *ctx, int inc)
 	return CONTINUE;
 }
 
-static int parse_question(struct parse_context *ctx, int inc)
+static int parse_question(KnowledgeBaseParser *ctx, int inc)
 {
 	char ch;
 
@@ -320,7 +251,7 @@ static int parse_question(struct parse_context *ctx, int inc)
 	return CONTINUE;
 }
 
-static int parse_conc_title(struct parse_context *ctx, int inc)
+static int parse_conc_title(KnowledgeBaseParser *ctx, int inc)
 {
 	char ch;
 
@@ -355,7 +286,7 @@ static int parse_conc_title(struct parse_context *ctx, int inc)
 
 }
 
-static int parse_conc_p_apriori(struct parse_context *ctx, int inc)
+static int parse_conc_p_apriori(KnowledgeBaseParser *ctx, int inc)
 {
 	char ch;
 
@@ -388,7 +319,7 @@ static int parse_conc_p_apriori(struct parse_context *ctx, int inc)
 	return CONTINUE;
 }
 
-static int parse_conc_rule_index(struct parse_context *ctx, int inc)
+static int parse_conc_rule_index(KnowledgeBaseParser *ctx, int inc)
 {
 	char ch;
 
@@ -422,7 +353,7 @@ static int parse_conc_rule_index(struct parse_context *ctx, int inc)
 }
 
 
-static int parse_conc_rule_py(struct parse_context *ctx, int inc)
+static int parse_conc_rule_py(KnowledgeBaseParser *ctx, int inc)
 {
 	char ch;
 
@@ -455,7 +386,7 @@ static int parse_conc_rule_py(struct parse_context *ctx, int inc)
 }
 
 
-static int parse_conc_rule_pn(struct parse_context *ctx, int inc)
+static int parse_conc_rule_pn(KnowledgeBaseParser *ctx, int inc)
 {
 	char ch;
 

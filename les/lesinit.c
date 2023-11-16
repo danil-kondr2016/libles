@@ -9,30 +9,15 @@
 static void set_questions(LittleExpertSystem *pSys, size_t i);
 static void init_fields(LittleExpertSystem *pSys);
 
-int les_init_file(LittleExpertSystem *pSys, const char *filename)
+void les_move_kb(LittleExpertSystem *pSys, KnowledgeBase *pKB)
 {
-	int ret;
 	assert(pSys);
+	assert(pKB);
 
-	ret = les_knowledge_base_parse_file(&pSys->kb, filename);
-	if (ret)
-		return ret;
-
+	les_knowledge_base_copy(&pSys->kb, pKB);
 	init_fields(pSys);
-	return ret;
-}
 
-int les_init_data(LittleExpertSystem *pSys, const char *data)
-{
-	int ret;
-	assert(pSys);
-
-	ret = les_knowledge_base_parse_data(&pSys->kb, data);
-	if (ret)
-		return ret;
-
-	init_fields(pSys);
-	return ret;
+	les_knowledge_base_destroy(pKB);
 }
 
 void les_close(LittleExpertSystem *pSys)

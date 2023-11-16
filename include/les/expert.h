@@ -25,8 +25,7 @@ typedef struct LittleExpertSystem
 	int           running;
 } LittleExpertSystem;
 
-int  les_init_file(LittleExpertSystem *pSys, const char *filename);
-int  les_init_data(LittleExpertSystem *pSys, const char *data);
+void les_move_kb(LittleExpertSystem *pSys, KnowledgeBase *pKB);
 void les_close(LittleExpertSystem *pSys);
 
 void les_start(LittleExpertSystem *pSys);

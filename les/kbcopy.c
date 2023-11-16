@@ -22,6 +22,7 @@ void les_knowledge_base_copy(KnowledgeBase *pDest, KnowledgeBase *pSrc)
 	for (i = 0; i < pDest->nConclusions; i++) {
 		conclusion.str = strdup(pSrc->conclusions[i].str);
 		conclusion.probApriori = pSrc->conclusions[i].probApriori;
+		conclusion.answerProbs = NULL;
 		
 		for (j = 0; j < pDest->nQuestions; j++) {
 			buf_push(conclusion.answerProbs,
