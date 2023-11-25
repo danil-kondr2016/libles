@@ -26,6 +26,7 @@ typedef struct LittleExpertSystem
 } LittleExpertSystem;
 
 void les_move_kb(LittleExpertSystem *pSys, KnowledgeBase *pKB);
+void les_copy_kb(LittleExpertSystem *pSys, KnowledgeBase *pKB);
 void les_close(LittleExpertSystem *pSys);
 
 void les_start(LittleExpertSystem *pSys);

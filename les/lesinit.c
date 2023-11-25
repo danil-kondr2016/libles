@@ -14,10 +14,17 @@ void les_move_kb(LittleExpertSystem *pSys, KnowledgeBase *pKB)
 	assert(pSys);
 	assert(pKB);
 
+	les_knowledge_base_move(&pSys->kb, pKB);
+	init_fields(pSys);
+}
+
+void les_copy_kb(LittleExpertSystem *pSys, KnowledgeBase *pKB)
+{
+	assert(pSys);
+	assert(pKB);
+
 	les_knowledge_base_copy(&pSys->kb, pKB);
 	init_fields(pSys);
-
-	les_knowledge_base_destroy(pKB);
 }
 
 void les_close(LittleExpertSystem *pSys)
