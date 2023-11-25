@@ -59,5 +59,6 @@ int les_knowledge_base_parse(KnowledgeBaseParser *pParser, KnowledgeBase *pKB);
 void les_knowledge_base_destroy(KnowledgeBase *pKB);
 
 void les_knowledge_base_copy(KnowledgeBase *pDest, KnowledgeBase *pSrc);
+void les_knowledge_base_move(KnowledgeBase *pDest, KnowledgeBase *pSrc);
 
 #endif

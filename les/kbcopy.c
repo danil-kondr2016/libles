@@ -32,3 +32,24 @@ void les_knowledge_base_copy(KnowledgeBase *pDest, KnowledgeBase *pSrc)
 		buf_push(pDest->conclusions, conclusion);
 	}
 }
+
+void les_knowledge_base_move(KnowledgeBase *pDest, KnowledgeBase *pSrc)
+{
+	strncpy(pDest->message, pSrc->message, MAX_MESSAGE_LENGTH + 1);
+	memset(pSrc->message, 0, MAX_MESSAGE_LENGTH+1);
+
+	pDest->comment = pSrc->comment;
+	pSrc->comment = NULL;
+
+	pDest->nQuestions = pSrc->nQuestions;
+	pSrc->nQuestions = 0;
+
+	pDest->questions = pSrc->questions;
+	pSrc->questions = NULL;
+
+	pDest->nConclusions = pSrc->nConclusions;
+	pSrc->nConclusions = 0;
+
+	pDest->conclusions = pSrc->conclusions;
+	pSrc->conclusions = NULL;
+}
