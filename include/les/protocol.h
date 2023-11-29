@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <les/public.h>
 #include <les/version.h>
 
 typedef struct LESProtocol LESProtocol;
@@ -28,11 +29,19 @@ struct LESProtocolNode
 	int32_t         nHypotheses;
 };
 
+LIBLES_API
 void les_protocol_init(LESProtocol *pProto);
+
+LIBLES_API
 void les_protocol_free(LESProtocol *pProto);
+
+LIBLES_API
 void les_protocol_move(LESProtocol *pDest, LESProtocol *pSrc);
+
+LIBLES_API
 void les_protocol_copy(LESProtocol *pDest, LESProtocol *pSrc);
 
+LIBLES_API
 void les_protocol_append(LESProtocol *proto,
 		const char *question,
 		double normVal,

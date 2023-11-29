@@ -5,6 +5,7 @@
 #include <stddef.h>
 
 #include <les/version.h>
+#include <les/public.h>
 #include <les/knowbase.h>
 
 typedef struct LittleExpertSystem
@@ -26,15 +27,28 @@ typedef struct LittleExpertSystem
 	int           running;
 } LittleExpertSystem;
 
+LIBLES_API
 void les_move_kb(LittleExpertSystem *pSys, KnowledgeBase *pKB);
+
+LIBLES_API
 void les_copy_kb(LittleExpertSystem *pSys, KnowledgeBase *pKB);
+
+LIBLES_API
 void les_close(LittleExpertSystem *pSys);
 
+LIBLES_API
 void les_start(LittleExpertSystem *pSys);
+
+LIBLES_API
 int  les_is_running(LittleExpertSystem *pSys);
+
+LIBLES_API
 int  les_answer(LittleExpertSystem *pSys, double answer);
+
+LIBLES_API
 void les_stop(LittleExpertSystem *pSys);
 
+LIBLES_API
 char *les_get_question(LittleExpertSystem *pSys);
 
 #endif

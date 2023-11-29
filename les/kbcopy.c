@@ -1,8 +1,10 @@
+#define _LES_DLL
 #include <les/knowbase.h>
 
 #include <string.h>
 #include "buf.h"
 
+LIBLES_API
 void les_knowledge_base_copy(KnowledgeBase *pDest, KnowledgeBase *pSrc)
 {
 	int32_t i, j;
@@ -33,6 +35,7 @@ void les_knowledge_base_copy(KnowledgeBase *pDest, KnowledgeBase *pSrc)
 	}
 }
 
+LIBLES_API
 void les_knowledge_base_move(KnowledgeBase *pDest, KnowledgeBase *pSrc)
 {
 	strncpy(pDest->message, pSrc->message, MAX_MESSAGE_LENGTH + 1);

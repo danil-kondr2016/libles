@@ -1,3 +1,4 @@
+#define _LES_DLL
 #include <les/expert.h>
 
 #include <stdio.h>
@@ -9,6 +10,7 @@
 static void set_questions(LittleExpertSystem *pSys, int32_t i);
 static void init_fields(LittleExpertSystem *pSys);
 
+LIBLES_API
 void les_move_kb(LittleExpertSystem *pSys, KnowledgeBase *pKB)
 {
 	assert(pSys);
@@ -18,6 +20,7 @@ void les_move_kb(LittleExpertSystem *pSys, KnowledgeBase *pKB)
 	init_fields(pSys);
 }
 
+LIBLES_API
 void les_copy_kb(LittleExpertSystem *pSys, KnowledgeBase *pKB)
 {
 	assert(pSys);
@@ -27,6 +30,7 @@ void les_copy_kb(LittleExpertSystem *pSys, KnowledgeBase *pKB)
 	init_fields(pSys);
 }
 
+LIBLES_API
 void les_close(LittleExpertSystem *pSys)
 {
 	assert(pSys);

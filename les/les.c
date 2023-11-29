@@ -1,3 +1,4 @@
+#define _LES_DLL
 #include <les/expert.h>
 
 #include <stdio.h>
@@ -13,6 +14,7 @@ static void calculate_rulevalue(LittleExpertSystem *pSys);
 static void set_rulevalue(LittleExpertSystem *pSys, int32_t i);
 static void calculate_min_max(LittleExpertSystem *pSys);
 
+LIBLES_API
 void les_start(LittleExpertSystem *pSys)
 {
 	assert(pSys);
@@ -21,6 +23,7 @@ void les_start(LittleExpertSystem *pSys)
 	select_question(pSys);
 }
 
+LIBLES_API
 int les_answer(LittleExpertSystem *pSys, double answer)
 {
 	double dunno, diff;
@@ -50,12 +53,14 @@ int les_answer(LittleExpertSystem *pSys, double answer)
 	return 1;
 }
 
+LIBLES_API
 int les_is_running(LittleExpertSystem *pSys)
 {
 	assert(pSys);
 	return pSys->running;
 }
 
+LIBLES_API
 void les_stop(LittleExpertSystem *pSys)
 {
 	assert(pSys);
@@ -64,6 +69,7 @@ void les_stop(LittleExpertSystem *pSys)
 	pSys->iCurrentQuestion = 0;
 }
 
+LIBLES_API
 char *les_get_question(LittleExpertSystem *pSys)
 {
 	return strdup(pSys->kb.questions[pSys->iCurrentQuestion]);

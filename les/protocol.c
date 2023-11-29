@@ -1,3 +1,4 @@
+#define _LES_DLL
 #include <les/protocol.h>
 
 #include <stdio.h>
@@ -7,6 +8,7 @@
 
 #include "buf.h"
 
+LIBLES_API
 void les_protocol_init(LESProtocol *pProto)
 {
 	assert(pProto);
@@ -15,6 +17,7 @@ void les_protocol_init(LESProtocol *pProto)
 	pProto->tail = NULL;
 }
 
+LIBLES_API
 void les_protocol_free(LESProtocol *pProto)
 {
 	LESProtocolNode *p, *q;
@@ -35,6 +38,7 @@ void les_protocol_free(LESProtocol *pProto)
 	pProto->tail = NULL;
 }
 
+LIBLES_API
 void les_protocol_move(LESProtocol *pDest, LESProtocol *pSrc)
 {
 	assert(pDest);
@@ -47,6 +51,7 @@ void les_protocol_move(LESProtocol *pDest, LESProtocol *pSrc)
 	pSrc->tail = NULL;
 }
 
+LIBLES_API
 void les_protocol_copy(LESProtocol *pDest, LESProtocol *pSrc)
 {
 	LESProtocolNode *p;
@@ -66,6 +71,7 @@ void les_protocol_copy(LESProtocol *pDest, LESProtocol *pSrc)
 	}
 }
 
+LIBLES_API
 void les_protocol_append(LESProtocol *proto,
 		const char *question,
 		double normVal,

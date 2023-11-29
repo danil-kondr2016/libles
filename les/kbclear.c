@@ -1,3 +1,4 @@
+#define _LES_DLL
 #include <les/knowbase.h>
 
 #include <stdio.h>
@@ -9,6 +10,7 @@
 
 #include "buf.h"
 
+LIBLES_API
 void les_knowledge_base_destroy(KnowledgeBase *pKB)
 {
 	int32_t i;

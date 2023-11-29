@@ -1,3 +1,4 @@
+#define _LES_DLL
 #include <les/knowbase.h>
 
 #include <stddef.h>
@@ -32,6 +33,7 @@ enum kbparse_error
 
 static int parse(KnowledgeBaseParser *ctx);
 
+LIBLES_API
 void les_knowledge_base_init_parser(KnowledgeBaseParser *pParser)
 {
 	assert(pParser);
@@ -52,6 +54,7 @@ void les_knowledge_base_init_parser(KnowledgeBaseParser *pParser)
 	pParser->iAnswerProbQuestion = 0;
 }
 
+LIBLES_API
 int les_knowledge_base_parse(KnowledgeBaseParser *pParser, KnowledgeBase *pKB)
 {
 	assert(pParser);
