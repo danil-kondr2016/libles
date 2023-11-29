@@ -4,6 +4,7 @@
 
 #include <stddef.h>
 
+#include <les/version.h>
 #include <les/knowbase.h>
 
 typedef struct LittleExpertSystem

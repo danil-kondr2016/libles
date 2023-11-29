@@ -5,6 +5,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <les/version.h>
+
 typedef struct LESProtocol LESProtocol;
 typedef struct LESProtocolNode LESProtocolNode;
 

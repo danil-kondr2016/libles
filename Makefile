@@ -8,7 +8,8 @@ x = .exe
 o = .o
 
 OBJS=les/parsemkb$o les/kbclear$o les/kbcopy$o \
-     les/les$o les/lesinit$o
+     les/les$o les/lesinit$o les/protocol$o \
+     les/version$o
 
 all: kbtest$x lestest$x
 
@@ -28,6 +29,8 @@ les/lesinit.c: include/les/expert.h include/les/knowbase.h
 les/parsemkb.c: include/les/knowbase.h
 les/kbclear.c: include/les/knowbase.h
 les/kbcopy.c: include/les/knowbase.h
+les/protocol.c: include/les/protocol.h
+les/version.c: include/les/version.h
 
 clean:
 	rm -f tests/*$o les/*$o ./kbtest$x ./lestest$x

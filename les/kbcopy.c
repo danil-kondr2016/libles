@@ -5,7 +5,7 @@
 
 void les_knowledge_base_copy(KnowledgeBase *pDest, KnowledgeBase *pSrc)
 {
-	size_t i, j;
+	int32_t i, j;
 	Conclusion conclusion;
 
 	strncpy(pDest->message, pSrc->message, MAX_MESSAGE_LENGTH + 1);

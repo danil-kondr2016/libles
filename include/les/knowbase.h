@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include <les/version.h>
 
 struct AnswerProbability
 {
@@ -28,11 +29,11 @@ struct KnowledgeBase
 	char            message[MAX_MESSAGE_LENGTH + 1];
 	char            *comment;
 
-	size_t          nQuestions;
 	char            **questions;
-
-	size_t          nConclusions;
 	Conclusion      *conclusions;
+
+	int32_t         nQuestions;
+	int32_t         nConclusions;
 };
 typedef struct KnowledgeBase KnowledgeBase;
 

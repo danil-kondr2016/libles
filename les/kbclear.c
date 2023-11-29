@@ -11,7 +11,7 @@
 
 void les_knowledge_base_destroy(KnowledgeBase *pKB)
 {
-	size_t i;
+	int32_t i;
 
 	if (pKB->comment) {
 		free(pKB->comment);
