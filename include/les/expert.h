@@ -19,8 +19,8 @@ typedef struct LittleExpertSystem
 
 	double        yesVal, noVal;
 	double        prob0, prob1;
-	size_t        iCurrentQuestion;
-	size_t        iBest;
+	int32_t       iCurrentQuestion;
+	int32_t       iBest;
 
 	int           running;
 } LittleExpertSystem;

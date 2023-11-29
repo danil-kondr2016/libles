@@ -6,7 +6,7 @@
 
 #include <assert.h>
 
-static void set_questions(LittleExpertSystem *pSys, size_t i);
+static void set_questions(LittleExpertSystem *pSys, int32_t i);
 static void init_fields(LittleExpertSystem *pSys);
 
 void les_move_kb(LittleExpertSystem *pSys, KnowledgeBase *pKB)
@@ -40,10 +40,10 @@ void les_close(LittleExpertSystem *pSys)
 	free(pSys->flags);
 }
 
-static void set_questions(LittleExpertSystem *pSys, size_t i)
+static void set_questions(LittleExpertSystem *pSys, int32_t i)
 {
 	double p, py, pn;
-	size_t j;
+	int32_t j;
 
 	p = pSys->kb.conclusions[i].probApriori;
 	pSys->questions[i] = 0;
@@ -60,7 +60,7 @@ static void set_questions(LittleExpertSystem *pSys, size_t i)
 
 static void init_fields(LittleExpertSystem *pSys)
 {
-	size_t i;
+	int32_t i;
 	
 	pSys->probs = calloc(pSys->kb.nConclusions, sizeof(double));
 	pSys->min = calloc(pSys->kb.nConclusions, sizeof(double));

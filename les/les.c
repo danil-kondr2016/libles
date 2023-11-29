@@ -10,7 +10,7 @@
 static void select_question(LittleExpertSystem *pSys);
 static void recalc_p_apriori(LittleExpertSystem *pSys, double answer);
 static void calculate_rulevalue(LittleExpertSystem *pSys);
-static void set_rulevalue(LittleExpertSystem *pSys, size_t i);
+static void set_rulevalue(LittleExpertSystem *pSys, int32_t i);
 static void calculate_min_max(LittleExpertSystem *pSys);
 
 void les_start(LittleExpertSystem *pSys)
@@ -71,16 +71,16 @@ char *les_get_question(LittleExpertSystem *pSys)
 
 static void calculate_rulevalue(LittleExpertSystem *pSys)
 {
-	size_t i;
+	int32_t i;
 
 	for (i = 0; i < pSys->kb.nConclusions; i++)
 		set_rulevalue(pSys, i);
 }
 
-static void set_rulevalue(LittleExpertSystem *pSys, size_t i)
+static void set_rulevalue(LittleExpertSystem *pSys, int32_t i)
 {
 	double p, py, pn, p_if_y, p_if_not_y;
-	size_t j;
+	int32_t j;
 
 	p = pSys->kb.conclusions[i].probApriori;
 	pSys->rulevalue[i] = 0;
@@ -109,7 +109,7 @@ static void set_rulevalue(LittleExpertSystem *pSys, size_t i)
 static void select_question(LittleExpertSystem *pSys)
 {
 	double m = 0;
-	size_t i, best_i;
+	int32_t i, best_i;
 
 	calculate_rulevalue(pSys);
 
@@ -134,7 +134,7 @@ static void select_question(LittleExpertSystem *pSys)
 
 static void recalc_p_apriori(LittleExpertSystem *pSys, double answer)
 {
-	size_t i, q;
+	int32_t i, q;
 	double p, py, pn, pe;
 
 	q = pSys->iCurrentQuestion;
@@ -167,7 +167,7 @@ static void recalc_p_apriori(LittleExpertSystem *pSys, double answer)
 static void calculate_min_max(LittleExpertSystem *pSys)
 {
 	double maxofmin, prior, a1, a2, a3, a4, p, py, pn;
-	size_t i, j, best;
+	int32_t i, j, best;
 
 	maxofmin = 0;
 	for (i = 0; i < pSys->kb.nConclusions; i++) {
