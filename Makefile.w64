@@ -2,25 +2,27 @@
 .SUFFIXES:
 
 CC = cc
-CFLAGS = -Os -fvisibility=hidden -g -W -I./include/
+CFLAGS = -Os -g -W -I./include/
 LDFLAGS = -s
 
 LIBOBJS=les/parsemkb.o les/kbclear.o les/kbcopy.o \
      les/les.o les/lesinit.o les/protocol.o \
      les/version.o
 
-all: kbtest lestest libles.so
+all: kbtest.exe lestest.exe libles.lib
 
-lestest: tests/lestest.o libles.so
-	$(CC) $(CFLAGS) $(LDFLAGS) -o lestest \
+lestest.exe: tests/lestest.o libles.lib
+	$(CC) $(CFLAGS) $(LDFLAGS) -o lestest.exe \
 		tests/lestest.o libles.dll $(LDLIBS)
 
-kbtest: tests/kbtest.o libles.so
-	$(CC) $(CFLAGS) $(LDFLAGS) -o kbtest \
+kbtest.exe: tests/kbtest.o libles.lib
+	$(CC) $(CFLAGS) $(LDFLAGS) -o kbtest.exe \
 		tests/kbtest.o libles.dll $(LDLIBS)
 
-libles.so: $(LIBOBJS)
-	$(CC) -shared \
+libles.lib: libles.dll
+
+libles.dll: $(LIBOBJS)
+	$(CC) -shared -Wl,--out-implib,$(@:dll=lib) \
 		$(CFLAGS) $(LDFLAGS) -o $@ $(LIBOBJS) $(LDLIBS)
 
 .SUFFIXES: .c .o
@@ -38,6 +40,6 @@ les/version.o: include/les/version.h
 
 clean:
 	rm -f tests/*.o les/*.o \
-		./kbtest ./lestest \
-		libles.so
+		./kbtest.exe ./lestest.exe \
+		libles.dll libles.lib
 	
