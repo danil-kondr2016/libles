@@ -115,7 +115,7 @@ static void set_rulevalue(LittleExpertSystem *pSys, int32_t i)
 static void select_question(LittleExpertSystem *pSys)
 {
 	double m = 0;
-	int32_t i, best_i;
+	int32_t i, best_i = 0;
 
 	calculate_rulevalue(pSys);
 
@@ -129,7 +129,7 @@ static void select_question(LittleExpertSystem *pSys)
 		}
 	}
 
-	if (best_i >= pSys->kb.nQuestions) {
+	if (best_i == 0 || best_i >= pSys->kb.nQuestions) {
 		les_stop(pSys);
 		return;
 	}

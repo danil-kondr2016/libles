@@ -30,13 +30,13 @@ libles.dll: $(LIBOBJS)
 .c$o:
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-les/les.c: include/les/expert.h include/les/knowbase.h
-les/lesinit.c: include/les/expert.h include/les/knowbase.h
-les/parsemkb.c: include/les/knowbase.h
-les/kbclear.c: include/les/knowbase.h
-les/kbcopy.c: include/les/knowbase.h
-les/protocol.c: include/les/protocol.h
-les/version.c: include/les/version.h
+les/les.o: include/les/expert.h include/les/knowbase.h
+les/lesinit.o: include/les/expert.h include/les/knowbase.h
+les/parsemkb.o: include/les/knowbase.h
+les/kbclear.o: include/les/knowbase.h
+les/kbcopy.o: include/les/knowbase.h
+les/protocol.o: include/les/protocol.h
+les/version.o: include/les/version.h
 
 clean:
 	rm -f tests/*$o les/*$o ./kbtest$x ./lestest$x libles.dll libles.lib
