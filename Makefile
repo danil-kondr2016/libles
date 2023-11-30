@@ -13,11 +13,11 @@ all: kbtest lestest libles.so
 
 lestest: tests/lestest.o libles.so
 	$(CC) $(CFLAGS) $(LDFLAGS) -o lestest \
-		tests/lestest.o libles.dll $(LDLIBS)
+		tests/lestest.o libles.so $(LDLIBS)
 
 kbtest: tests/kbtest.o libles.so
 	$(CC) $(CFLAGS) $(LDFLAGS) -o kbtest \
-		tests/kbtest.o libles.dll $(LDLIBS)
+		tests/kbtest.o libles.so $(LDLIBS)
 
 libles.so: $(LIBOBJS)
 	$(CC) -shared \
