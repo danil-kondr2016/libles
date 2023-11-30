@@ -4,6 +4,10 @@
 
 #include <les/expert.h>
 
+#define OPTPARSE_IMPLEMENTATION
+#define OPTPARSE_API static
+#include "optparse.h"
+
 static ptrdiff_t cfile_read(uintptr_t from, void *to, size_t size)
 {
 	ptrdiff_t result;
@@ -26,14 +30,29 @@ int main(int argc, char **argv)
 	KnowledgeBase kb = {0};
 	KnowledgeBaseParser kbParser;
 	LittleExpertSystem les = {0};
-	int ret, i, j;
+	struct optparse options;
+	int ret, i, j, option;
 
-	if (argc < 2) {
-		printf("Usage: %s input\n", argv[0]);
-		exit(1);
+	optparse_init(&options, argv);
+
+	while  ((option = optparse(&options, "h")) != -1) {
+		switch (option) {
+		case 'h':
+			printf("Usage: %s [-h] input\n", argv[0]);
+			exit(EXIT_SUCCESS);
+		case '?':
+			fprintf(stderr, "%s: %s\n", argv[0], options.errmsg);
+			exit(EXIT_FAILURE);
+		}
 	}
 
-	input_name = argv[1];
+	input_name = optparse_arg(&options);
+	if (!input_name) {
+		printf("%s: input name not specified\n", argv[0]);
+		printf("Usage: %s [-h] input\n", argv[0]);
+		exit(EXIT_FAILURE);
+	}
+
 	input = fopen(input_name, "rb");
 	if (!input) {
 		perror(input_name);
