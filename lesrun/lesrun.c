@@ -8,6 +8,8 @@
 #define OPTPARSE_API static
 #include "optparse.h"
 
+#define LESRUN_VERSION "0.1.1"
+
 static ptrdiff_t cfile_read(uintptr_t from, void *to, size_t size)
 {
 	ptrdiff_t result;
@@ -35,10 +37,14 @@ int main(int argc, char **argv)
 
 	optparse_init(&options, argv);
 
-	while  ((option = optparse(&options, "h")) != -1) {
+	while  ((option = optparse(&options, "hv")) != -1) {
 		switch (option) {
 		case 'h':
 			printf("Usage: %s [-h] input\n", argv[0]);
+			exit(EXIT_SUCCESS);
+		case 'v':
+			printf("lesrun %s\n", LESRUN_VERSION);
+			printf("based on libles %s\n", les_version());
 			exit(EXIT_SUCCESS);
 		case '?':
 			fprintf(stderr, "%s: %s\n", argv[0], options.errmsg);
