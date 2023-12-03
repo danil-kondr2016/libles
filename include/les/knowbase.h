@@ -8,6 +8,8 @@
 #include <les/public.h>
 #include <les/version.h>
 
+LES_DEF_BEGIN
+
 struct AnswerProbability
 {
 	double  probYes, probNo;
@@ -70,5 +72,7 @@ void les_knowledge_base_copy(KnowledgeBase *pDest, KnowledgeBase *pSrc);
 
 LIBLES_API
 void les_knowledge_base_move(KnowledgeBase *pDest, KnowledgeBase *pSrc);
+
+LES_DEF_END
 
 #endif

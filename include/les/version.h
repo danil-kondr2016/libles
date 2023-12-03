@@ -4,7 +4,11 @@
 
 #include <les/public.h>
 
+LES_DEF_BEGIN
+
 LIBLES_API
 const char *les_version();
+
+LES_DEF_END
 
 #endif

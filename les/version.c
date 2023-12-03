@@ -3,7 +3,7 @@
 
 #define LES_MAJOR_VERSION 0
 #define LES_MINOR_VERSION 1
-#define LES_PATCH_VERSION 2
+#define LES_PATCH_VERSION 3
 
 #define XSTR(x) #x
 #define STR(x) XSTR(x)

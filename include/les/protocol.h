@@ -8,6 +8,8 @@
 #include <les/public.h>
 #include <les/version.h>
 
+LES_DEF_BEGIN
+
 typedef struct LESProtocol LESProtocol;
 typedef struct LESProtocolNode LESProtocolNode;
 
@@ -47,5 +49,7 @@ void les_protocol_append(LESProtocol *proto,
 		double normVal,
 		int32_t nHypotheses,
 		double *probs);
+
+LES_DEF_END
 
 #endif

@@ -8,6 +8,8 @@
 #include <les/public.h>
 #include <les/knowbase.h>
 
+LES_DEF_BEGIN
+
 typedef struct LittleExpertSystem
 {
 	KnowledgeBase kb;
@@ -50,5 +52,7 @@ void les_stop(LittleExpertSystem *pSys);
 
 LIBLES_API
 char *les_get_question(LittleExpertSystem *pSys);
+
+LES_DEF_END
 
 #endif

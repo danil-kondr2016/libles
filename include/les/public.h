@@ -18,4 +18,12 @@
 # endif
 #endif
 
+#ifdef __cplusplus
+# define LES_DEF_BEGIN extern "C" {
+# define LES_DEF_END }
+#else
+# define LES_DEF_BEGIN 
+# define LES_DEF_END
+#endif
+
 #endif
