@@ -32,13 +32,9 @@ LIBOBJS=les/parsemkb$o les/kbclear$o les/kbcopy$o \
 
 all: lesrun$x libles$d 
 
-LIBLES_windows=libles$a
-LIBLES_unix=libles$d
-LIBLES := $(LIBLES_$(SYSTEM))
-
 lesrun$x: lesrun/lesrun$o libles$d
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ \
-		lesrun/lesrun$o $(LIBLES) $(LDLIBS)
+		lesrun/lesrun$o libles$d $(LDLIBS)
 
 LDFLAGS_libles_windows = -Wl,--out-implib,$(@:dll=lib)
 LDFLAGS_libles_linux = -fvisibility=hidden
