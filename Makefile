@@ -8,41 +8,58 @@ LDFLAGS_linux =
 LDFLAGS_windows =
 
 CC ?= cc
+AR ?= ar
+RANLIB ?= ranlib
 CFLAGS += $(CFLAGS_$(SYSTEM)) -W -I./include/
 LDFLAGS += -s $(LDFLAGS_$(SYSTEM))
 
 x_windows = .exe
 o_windows = .obj
-a_windows = .lib
+a_windows = s.lib
 d_windows = .dll
+i_windows = .lib
 
 x_linux = 
 o_linux = .o
 a_linux = .a
 d_linux = .so
+i_linux = .a
 
 x := $(x_$(SYSTEM))
 o := $(o_$(SYSTEM))
 a := $(a_$(SYSTEM))
 d := $(d_$(SYSTEM))
+i := $(i_$(SYSTEM))
 
 LIBOBJS=les/parsemkb$o les/kbclear$o les/kbcopy$o \
      les/les$o les/lesinit$o les/protocol$o \
      les/version$o
 
-all: lesrun$x libles$d 
+all: lesrun$x libles$d libles$a lesruns$x
 
 lesrun$x: lesrun/lesrun$o libles$d
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ \
+	$(CC) $(CFLAGS) -D_LES_DLL $(LDFLAGS) -o $@ \
 		lesrun/lesrun$o libles$d $(LDLIBS)
 
-LDFLAGS_libles_windows = -Wl,--out-implib,$(@:dll=lib)
+lesruns$x: lesrun/lesrun$o libles$a
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ \
+		lesrun/lesrun$o libles$a $(LDLIBS)
+
+LDFLAGS_libles_windows = -Wl,--out-implib,$(@:$d=$i)
 LDFLAGS_libles_linux = -fvisibility=hidden
 LDFLAGS_libles = $(LDFLAGS_libles_$(SYSTEM))
 
 libles$d: $(LIBOBJS)
 	$(CC) -shared \
-		$(CFLAGS) $(LDFLAGS) $(LDFLAGS_libles) -o $@ $(LIBOBJS) $(LDLIBS)
+		$(CFLAGS) -D_LES_DLL -D_LES_EXPORT \
+		$(LDFLAGS) $(LDFLAGS_libles) \
+		-o $@ $(LIBOBJS) $(LDLIBS)
+
+libles$i: libles$d
+
+libles$a: $(LIBOBJS)
+	$(AR) rcs $@ $(LIBOBJS)
+	$(RANLIB) $@
 
 .SUFFIXES: .c $o
 
@@ -60,5 +77,6 @@ les/version$o: include/les/version.h
 clean:
 	-rm -f les/*$o lesrun/*$o \
 		./lesrun$x \
-		libles$d $(LIBLES)
+		libles$d libles$a libles$i \
+		lesruns$x
 	

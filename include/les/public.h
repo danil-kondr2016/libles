@@ -3,19 +3,23 @@
 #define _LES_PUBLIC_H_
 
 #if defined(_LES_DLL)
-# if defined(_WIN32)||defined(__WIN32__)||defined(WIN32)
-#  define LIBLES_API __declspec(dllexport)
-# elif defined(__ELF__)
-#  define LIBLES_API __attribute__((visibility("default")))
+# if defined(_LES_EXPORT)
+#  if defined(_WIN32)||defined(__WIN32__)||defined(WIN32)
+#   define LIBLES_API __declspec(dllexport)
+#  elif defined(__ELF__)
+#   define LIBLES_API __attribute__((visibility("default")))
+#  else
+#   define LIBLES_API
+#  endif
 # else
-#  define LIBLES_API
+#  if defined(_WIN32)
+#   define LIBLES_API __declspec(dllimport)
+#  else
+#   define LIBLES_API
+#  endif
 # endif
 #else
-# if defined(_WIN32)
-#  define LIBLES_API __declspec(dllimport)
-# else
-#  define LIBLES_API
-# endif
+# define LIBLES_API
 #endif
 
 #ifdef __cplusplus

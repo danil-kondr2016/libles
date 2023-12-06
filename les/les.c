@@ -1,4 +1,3 @@
-#define _LES_DLL
 #include <les/expert.h>
 
 #include <stdio.h>

@@ -1,4 +1,3 @@
-#define _LES_DLL
 #include <les/protocol.h>
 
 #include <stdio.h>

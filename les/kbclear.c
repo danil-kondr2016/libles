@@ -1,4 +1,3 @@
-#define _LES_DLL
 #include <les/knowbase.h>
 
 #include <stdio.h>

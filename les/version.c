@@ -1,4 +1,3 @@
-#define _LES_DLL
 #include <les/version.h>
 
 #define LES_MAJOR_VERSION 0
