@@ -34,7 +34,7 @@ void les_close(LittleExpertSystem *pSys)
 {
 	assert(pSys);
 
-	les_knowledge_base_destroy(&pSys->kb);	
+	les_knowledge_base_clear(&pSys->kb);	
 	free(pSys->probs);
 	free(pSys->min);
 	free(pSys->max);

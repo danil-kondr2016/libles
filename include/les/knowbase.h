@@ -40,32 +40,30 @@ struct KnowledgeBase
 };
 typedef struct KnowledgeBase KnowledgeBase;
 
-typedef struct KnowledgeBaseParser
-{
-	char *tmpBuf;
-	uintptr_t input;
-	KnowledgeBase *kb;
-	Conclusion conc;
-	AnswerProbability ansp;
-
-	int nLines, lineLength, state;
-	int nQuestions;
-	int fragmentSize;
-	int error;
-
-	int iAnswerProbQuestion;
-
-	ptrdiff_t (*read)(uintptr_t from, void *to, size_t size);
-} KnowledgeBaseParser;
+typedef struct KBParser KBParser;
+typedef ptrdiff_t (*KBParserReadFn)(uintptr_t from, void *to, size_t size);
 
 LIBLES_API
-void les_knowledge_base_init_parser(KnowledgeBaseParser *pParser);
+void les_knowledge_base_init_parser(KBParser *parser);
 
 LIBLES_API
-int les_knowledge_base_parse(KnowledgeBaseParser *pParser, KnowledgeBase *pKB);
+KBParser *les_knowledge_base_create_parser(
+		uintptr_t input, KBParserReadFn fn);
 
 LIBLES_API
-void les_knowledge_base_destroy(KnowledgeBase *pKB);
+void les_knowledge_base_destroy_parser(KBParser **pParser);
+
+LIBLES_API
+int les_knowledge_base_parse(KBParser *parser, KnowledgeBase *pKB);
+
+LIBLES_API
+KnowledgeBase *les_knowledge_base_create(void);
+
+LIBLES_API
+void les_knowledge_base_free(KnowledgeBase **pKB);
+
+LIBLES_API
+void les_knowledge_base_clear(KnowledgeBase *pKB);
 
 LIBLES_API
 void les_knowledge_base_copy(KnowledgeBase *pDest, KnowledgeBase *pSrc);

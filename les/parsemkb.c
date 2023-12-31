@@ -10,6 +10,7 @@
 #include <errno.h>
 
 #include "buf.h"
+#include "kbparser.h"
 
 enum kbparse_state
 {
@@ -30,10 +31,46 @@ enum kbparse_error
 	KBPARSE_ERROR_PREMATURE_END_OF_LINE,
 };
 
-static int parse(KnowledgeBaseParser *ctx);
+static int parse(KBParser *ctx);
 
 LIBLES_API
-void les_knowledge_base_init_parser(KnowledgeBaseParser *pParser)
+KBParser *les_knowledge_base_create_parser(
+		uintptr_t input, KBParserReadFn read)
+{
+	KBParser *result;
+       
+	result = calloc(sizeof(KBParser), 1);
+	if (!result)
+		return NULL;
+
+	result->input = input;
+	result->read = read;
+
+	return result;
+}
+
+LIBLES_API
+void les_knowledge_base_destroy_parser(KBParser **pParser)
+{
+	KBParser *parser;
+
+	if (!pParser)
+		return;
+
+	if (!*pParser)
+		return;
+
+	parser = *pParser;
+
+	buf_free(parser->tmpBuf);
+	buf_free(parser->conc.str);
+	buf_free(parser->conc.answerProbs);
+	free(parser);
+	*pParser = NULL;
+}
+
+LIBLES_API
+void les_knowledge_base_init_parser(KBParser *pParser)
 {
 	assert(pParser);
 
@@ -54,7 +91,7 @@ void les_knowledge_base_init_parser(KnowledgeBaseParser *pParser)
 }
 
 LIBLES_API
-int les_knowledge_base_parse(KnowledgeBaseParser *pParser, KnowledgeBase *pKB)
+int les_knowledge_base_parse(KBParser *pParser, KnowledgeBase *pKB)
 {
 	assert(pParser);
 	assert(pKB);
@@ -69,13 +106,13 @@ enum
 	STOP,
 };
 
-static int parse_comment(KnowledgeBaseParser *ctx, int inc);
-static int parse_question(KnowledgeBaseParser *ctx, int inc);
-static int parse_conc_title(KnowledgeBaseParser *ctx, int inc);
-static int parse_conc_p_apriori(KnowledgeBaseParser *ctx, int inc);
-static int parse_conc_rule_index(KnowledgeBaseParser *ctx, int inc);
-static int parse_conc_rule_py(KnowledgeBaseParser *ctx, int inc);
-static int parse_conc_rule_pn(KnowledgeBaseParser *ctx, int inc);
+static int parse_comment(KBParser *ctx, int inc);
+static int parse_question(KBParser *ctx, int inc);
+static int parse_conc_title(KBParser *ctx, int inc);
+static int parse_conc_p_apriori(KBParser *ctx, int inc);
+static int parse_conc_rule_index(KBParser *ctx, int inc);
+static int parse_conc_rule_py(KBParser *ctx, int inc);
+static int parse_conc_rule_pn(KBParser *ctx, int inc);
 
 static void init_conclusion(Conclusion *conc, 
 		int nQuestions)
@@ -94,7 +131,7 @@ static void init_conclusion(Conclusion *conc,
 }
 
 #define BUF_SIZE 4096
-static int parse(KnowledgeBaseParser *ctx)
+static int parse(KBParser *ctx)
 {
 	uint8_t buf[BUF_SIZE];
 	ptrdiff_t n_read = 0, pos = 0;
@@ -193,7 +230,7 @@ static int parse(KnowledgeBaseParser *ctx)
 	return ctx->error;
 }
 
-static int parse_comment(KnowledgeBaseParser *ctx, int inc)
+static int parse_comment(KBParser *ctx, int inc)
 {
 	char ch;
 
@@ -222,7 +259,7 @@ static int parse_comment(KnowledgeBaseParser *ctx, int inc)
 	return CONTINUE;
 }
 
-static int parse_question(KnowledgeBaseParser *ctx, int inc)
+static int parse_question(KBParser *ctx, int inc)
 {
 	char ch;
 
@@ -253,7 +290,7 @@ static int parse_question(KnowledgeBaseParser *ctx, int inc)
 	return CONTINUE;
 }
 
-static int parse_conc_title(KnowledgeBaseParser *ctx, int inc)
+static int parse_conc_title(KBParser *ctx, int inc)
 {
 	char ch;
 
@@ -288,7 +325,7 @@ static int parse_conc_title(KnowledgeBaseParser *ctx, int inc)
 
 }
 
-static int parse_conc_p_apriori(KnowledgeBaseParser *ctx, int inc)
+static int parse_conc_p_apriori(KBParser *ctx, int inc)
 {
 	char ch;
 
@@ -321,7 +358,7 @@ static int parse_conc_p_apriori(KnowledgeBaseParser *ctx, int inc)
 	return CONTINUE;
 }
 
-static int parse_conc_rule_index(KnowledgeBaseParser *ctx, int inc)
+static int parse_conc_rule_index(KBParser *ctx, int inc)
 {
 	char ch;
 
@@ -355,7 +392,7 @@ static int parse_conc_rule_index(KnowledgeBaseParser *ctx, int inc)
 }
 
 
-static int parse_conc_rule_py(KnowledgeBaseParser *ctx, int inc)
+static int parse_conc_rule_py(KBParser *ctx, int inc)
 {
 	char ch;
 
@@ -388,7 +425,7 @@ static int parse_conc_rule_py(KnowledgeBaseParser *ctx, int inc)
 }
 
 
-static int parse_conc_rule_pn(KnowledgeBaseParser *ctx, int inc)
+static int parse_conc_rule_pn(KBParser *ctx, int inc)
 {
 	char ch;
 

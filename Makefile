@@ -15,7 +15,7 @@ LDFLAGS += -s $(LDFLAGS_$(SYSTEM))
 
 x_windows = .exe
 o_windows = .obj
-a_windows = s.lib
+a_windows = .a
 d_windows = .dll
 i_windows = .lib
 
@@ -33,17 +33,17 @@ i := $(i_$(SYSTEM))
 
 LIBOBJS=les/parsemkb$o les/kbclear$o les/kbcopy$o \
      les/les$o les/lesinit$o les/protocol$o \
-     les/version$o
+     les/version$o les/kbinit$o
 
-all: lesrun$x libles$d libles$a lesruns$x
+all: libles$d libles$a lesrun$x lesruns$x
 
-lesrun$x: lesrun/lesrun$o libles$d
+lesrun$x: cmd/lesrun/lesrun$o libles$d
 	$(CC) $(CFLAGS) -D_LES_DLL $(LDFLAGS) -o $@ \
-		lesrun/lesrun$o libles$d $(LDLIBS)
+		cmd/lesrun/lesrun$o libles$d $(LDLIBS)
 
-lesruns$x: lesrun/lesrun$o libles$a
+lesruns$x: cmd/lesrun/lesrun$o libles$a
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ \
-		lesrun/lesrun$o libles$a $(LDLIBS)
+		cmd/lesrun/lesrun$o libles$a $(LDLIBS)
 
 LDFLAGS_libles_windows = -Wl,--out-implib,$(@:$d=$i)
 LDFLAGS_libles_linux = -fvisibility=hidden
@@ -75,8 +75,8 @@ les/protocol$o: include/les/protocol.h
 les/version$o: include/les/version.h
 
 clean:
-	-rm -f les/*$o lesrun/*$o \
+	-rm -f les/*$o cmd/lesrun/*$o \
 		./lesrun$x \
 		libles$d libles$a libles$i \
-		lesruns$x
+		./lesruns$x
 	

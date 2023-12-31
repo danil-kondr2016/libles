@@ -10,7 +10,7 @@
 #include "buf.h"
 
 LIBLES_API
-void les_knowledge_base_destroy(KnowledgeBase *pKB)
+void les_knowledge_base_clear(KnowledgeBase *pKB)
 {
 	int32_t i;
 
@@ -37,4 +37,18 @@ void les_knowledge_base_destroy(KnowledgeBase *pKB)
 		}
 		pKB->nConclusions = 0;
 	}
+}
+
+LIBLES_API
+void les_knowledge_base_free(KnowledgeBase **pKB)
+{
+	if (!pKB)
+		return;
+
+	if (!*pKB)
+		return;
+
+	les_knowledge_base_clear(*pKB);
+	free(*pKB);
+	*pKB = NULL;
 }
