@@ -2,8 +2,8 @@
 *.o
 *.a
 *.so
-lesrun
-lesruns
+./lesrun
+./lesruns
 # Windows output files
 *.exe
 *.lib
