@@ -110,27 +110,6 @@ void les_knowledge_base_destroy_parser(KBParser **pParser)
 }
 
 LIBLES_API
-void les_knowledge_base_init_parser(KBParser *pParser)
-{
-	assert(pParser);
-
-	pParser->tmpBuf = NULL;
-	pParser->kb = NULL;
-	pParser->conc.str = NULL;
-	pParser->conc.probApriori = 0;
-	pParser->conc.answerProbs = NULL;
-	pParser->ansp.probYes = 0;
-	pParser->ansp.probNo = 0;
-	pParser->nLines = 0;
-	pParser->lineLength = 0;
-	pParser->state = 0;
-	pParser->nQuestions = 0;
-	pParser->fragmentSize = 0;
-	pParser->error = 0;
-	pParser->iAnswerProbQuestion = 0;
-}
-
-LIBLES_API
 int les_knowledge_base_parse(KBParser *pParser, KnowledgeBase *pKB)
 {
 	assert(pParser);

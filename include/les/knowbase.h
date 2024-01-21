@@ -44,9 +44,6 @@ typedef struct KBParser KBParser;
 typedef ptrdiff_t (*KBParserReadFn)(uintptr_t from, void *to, size_t size);
 
 LIBLES_API
-void les_knowledge_base_init_parser(KBParser *parser);
-
-LIBLES_API
 KBParser *les_knowledge_base_create_parser(
 		uintptr_t input, KBParserReadFn fn);
 
