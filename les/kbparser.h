@@ -8,8 +8,6 @@ enum KnowledgeBaseEncoding
 {
 	LES_KB_CP1251,
 	LES_KB_UTF8,
-	LES_KB_UTF16LE,
-	LES_KB_UTF16BE,
 };
 
 typedef struct KBParser
