@@ -69,6 +69,7 @@ enum kbparse_error
 	KBPARSE_ERROR_TOO_BIG,
 	KBPARSE_ERROR_PREMATURE_END_OF_FILE,
 	KBPARSE_ERROR_PREMATURE_END_OF_LINE,
+	KBPARSE_ERROR_NON_EXISTENT_QUESTION,
 };
 
 static int parse(KBParser *ctx);
@@ -457,6 +458,16 @@ static int parse_conc_rule_index(KBParser *ctx, int inc)
 	if (inc == ',') {
 		buf_push(ctx->tmpBuf, '\0');
 		ctx->iAnswerProbQuestion = atoi(ctx->tmpBuf);
+		if (ctx->iAnswerProbQuestion >= ctx->kb->nQuestions) {
+			snprintf(ctx->kb->message, MAX_MESSAGE_LENGTH,
+				"Reference to non-existent question #%d "
+				"at row %zu column %zu",
+				ctx->iAnswerProbQuestion,
+				ctx->nLines + 1,
+				ctx->lineLength);
+			ctx->error = KBPARSE_ERROR_NON_EXISTENT_QUESTION;
+			return STOP;
+		}
 		buf_clear(ctx->tmpBuf);
 
 		ctx->fragmentSize = 0;
