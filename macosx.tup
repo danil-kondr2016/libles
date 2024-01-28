@@ -1,0 +1,8 @@
+x := 
+a := .a
+d := .so
+
+LDFLAGS_dll = -fvisibility=hidden
+
+CC := clang
+AR := ar

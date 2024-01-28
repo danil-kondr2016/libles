@@ -1,0 +1,15 @@
+include_rules
+
+CFLAGS += -I./include
+
+: foreach les/*.c |> !cc |> obj/%B.o {les_obj}
+: foreach les/*.c |> !dcc |> dobj/%B.o {les_dllobj}
+: {les_obj} |> !ar |> libles$(a)
+: {les_dllobj} |> !dll |> libles$(d)
+
+: cmd/lesrun/lesrun.c |> !cc |> obj/%B.o 
+: cmd/lesrun/lesrun.c |> !dcc |> dobj/%B.o 
+: obj/lesrun.o libles$(a) |> !exe |> lesruns$(x)
+: dobj/lesrun.o libles$(d) |> !exe |> lesrun$(x)
+
+# vim: tw=0
