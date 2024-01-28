@@ -7,6 +7,14 @@ CFLAGS += -I./include
 : {les_obj} |> !ar |> libles$(a)
 : {les_dllobj} |> !dll |> libles$(d)
 
+ifeq ($(TARGET), win32)
+: libles$(d) |> dlltool -b %f -l %o |> libles.imp
+else
+ifeq ($(TARGET), win64)
+: libles$(d) |> dlltool -b %f -l %o |> libles.imp
+endif
+endif
+
 : cmd/lesrun/lesrun.c |> !cc |> obj/%B.o 
 : cmd/lesrun/lesrun.c |> !dcc |> dobj/%B.o 
 : obj/lesrun.o libles$(a) |> !exe |> lesruns$(x)

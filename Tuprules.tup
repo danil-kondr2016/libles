@@ -4,11 +4,10 @@ ifdef TARGET
 	TARGET = @(TARGET)
 else
 	TARGET = @(TUP_PLATFORM)
-endif
-
-ifeq (@(TARGET), win32)
-	ifeq (@(TUP_ARCH), x86_64)
-		TARGET = win64
+	ifeq (@(TARGET), win32)
+		ifeq (@(TUP_ARCH), x86_64)
+			TARGET = win64
+		endif
 	endif
 endif
 
