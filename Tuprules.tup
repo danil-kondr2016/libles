@@ -13,7 +13,8 @@ ifeq (@(TARGET), win32)
 endif
 
 !cc = |> $(CC) $(CFLAGS) -o %o -c %f |> 
-!dcc = |> $(CC) $(CFLAGS) -D_LES_DLL -D_LES_EXPORT -o %o -c %f |> 
+!ecc = |> $(CC) $(CFLAGS) -D_LES_DLL -D_LES_EXPORT -o %o -c %f |> 
+!dcc = |> $(CC) $(CFLAGS) -D_LES_DLL -o %o -c %f |> 
 !ar = |> $(AR) rcs %o %f |>
 !dll = |> $(CC) -shared $(CFLAGS) -o %o %f $(LDFLAGS) $(LDFLAGS_dll) |>
 !exe = |> $(CC) $(CFLAGS) -o %o %f $(LDFLAGS) |>

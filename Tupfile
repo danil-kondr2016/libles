@@ -3,7 +3,7 @@ include_rules
 CFLAGS += -I./include
 
 : foreach les/*.c |> !cc |> obj/%B.o {les_obj}
-: foreach les/*.c |> !dcc |> dobj/%B.o {les_dllobj}
+: foreach les/*.c |> !ecc |> dobj/%B.o {les_dllobj}
 : {les_obj} |> !ar |> libles$(a)
 : {les_dllobj} |> !dll |> libles$(d)
 
