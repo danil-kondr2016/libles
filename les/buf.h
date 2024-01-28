@@ -30,14 +30,26 @@
 #  define BUF_INIT_CAPACITY 8
 #endif
 
+#if BUF_INIT_CAPACITY % 8 != 0
+#  error "Capacity of buffer must be divisible by 8"
+#endif
+
 #ifndef BUF_ABORT
 #  define BUF_ABORT abort()
+#endif
+
+#if __STDC_VERSION__ >= 199901L
+#  define _BUF_SIZE
+#  define _BUF_SIZE_DIF 0
+#else
+#  define _BUF_SIZE BUF_INIT_CAPACITY
+#  define _BUF_SIZE_DIF BUF_INIT_CAPACITY
 #endif
 
 struct buf {
     size_t capacity;
     size_t size;
-    char buffer[];
+    char buffer[_BUF_SIZE];
 };
 
 #define buf_ptr(v) \
@@ -85,12 +97,13 @@ static void *
 buf_grow1(void *v, size_t esize, ptrdiff_t n)
 {
     struct buf *p;
-    size_t max = (size_t)-1 - sizeof(struct buf);
+    size_t max = (size_t)-1 - sizeof(struct buf) + _BUF_SIZE_DIF;
     if (v) {
         p = buf_ptr(v);
         if (n > 0 && p->capacity + n > max / esize)
             goto fail; /* overflow */
-        p = realloc(p, sizeof(struct buf) + esize * (p->capacity + n));
+        p = realloc(p, sizeof(struct buf) - _BUF_SIZE_DIF 
+			+ esize * (p->capacity + n));
         if (!p)
             goto fail;
         p->capacity += n;
@@ -99,7 +112,8 @@ buf_grow1(void *v, size_t esize, ptrdiff_t n)
     } else {
         if ((size_t)n > max / esize)
             goto fail; /* overflow */
-        p = malloc(sizeof(struct buf) + esize * n);
+        p = malloc(sizeof(struct buf) - _BUF_SIZE_DIF
+		       	+ esize * n);
         if (!p)
             goto fail;
         p->capacity = n;
